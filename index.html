@@ -1,65 +1,55 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Minecraft Material Organizer</title>
 
 <style>
 
 body{
-background:linear-gradient(135deg,#1a1a1a,#0f2027);
-font-family:Arial;
+background:linear-gradient(135deg,#1b1b1b,#0f2027);
 color:white;
+font-family:Arial;
 text-align:center;
 padding:20px;
 }
 
-h1{
-margin-bottom:10px;
-}
-
 textarea{
-
 width:95%;
-height:180px;
-border-radius:10px;
-border:none;
-padding:10px;
-font-size:14px;
+height:160px;
 background:#222;
 color:white;
-
+border:none;
+border-radius:10px;
+padding:10px;
 }
 
 button{
-
 margin:6px;
-padding:10px 14px;
+padding:10px 15px;
 border:none;
 border-radius:8px;
 background:#4CAF50;
 color:white;
 font-size:14px;
-
 }
 
 button:hover{
-
 background:#66d46c;
-
 }
 
-#output{
-
+table{
+width:100%;
 margin-top:20px;
-text-align:left;
-white-space:pre-line;
+border-collapse:collapse;
 background:#111;
-padding:15px;
 border-radius:10px;
+overflow:hidden;
+}
 
+th,td{
+padding:10px;
+border-bottom:1px solid #333;
 }
 
 </style>
@@ -67,31 +57,40 @@ border-radius:10px;
 
 <body>
 
-<h1>Minecraft Material Organizer</h1>
+<h2>Minecraft Material Organizer</h2>
 
-<p>Paste Litematica material list</p>
-
-<textarea id="input"></textarea>
+<textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
 <br>
 
-<button onclick="sortAlphabet()">Sort Alphabet</button>
-<button onclick="sortQuantity()">Sort Quantity</button>
-<button onclick="groupBlocks()">Smart Group</button>
-<button onclick="convertStacks()">Stacks</button>
-<button onclick="convertChest()">Double Chest</button>
+<button onclick="generateTable()">Generate List</button>
+<button onclick="exportCSV()">Export Excel</button>
 
-<div id="output"></div>
+<table id="table">
+<thead>
+<tr>
+<th>Done</th>
+<th>Block</th>
+<th>Quantity</th>
+<th>Stacks</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
 
 <script>
 
-function parseInput(){
+let materials=[];
+
+function generateTable(){
 
 let text=document.getElementById("input").value.trim();
 
 let lines=text.split("\n");
 
-let items=[];
+materials=[];
 
 lines.forEach(line=>{
 
@@ -99,144 +98,67 @@ let match=line.match(/(.+?)[ :]+(\d+)/);
 
 if(match){
 
-items.push({
+let name=match[1].trim();
+let qty=parseInt(match[2]);
 
-name:match[1].trim(),
-
-qty:parseInt(match[2])
-
+materials.push({
+name:name,
+qty:qty,
+stacks:Math.floor(qty/64)
 });
 
 }
 
 });
 
-return items;
+renderTable();
 
 }
 
-function sortAlphabet(){
+function renderTable(){
 
-let items=parseInput();
+let tbody=document.querySelector("#table tbody");
 
-items.sort((a,b)=>a.name.localeCompare(b.name));
+tbody.innerHTML="";
 
-display(items);
+materials.forEach((m,i)=>{
 
-}
+let row=`
+<tr>
+<td><input type="checkbox"></td>
+<td>${m.name}</td>
+<td>${m.qty}</td>
+<td>${m.stacks}</td>
+</tr>
+`;
 
-function sortQuantity(){
-
-let items=parseInput();
-
-items.sort((a,b)=>b.qty-a.qty);
-
-display(items);
-
-}
-
-function groupBlocks(){
-
-let items=parseInput();
-
-let groups={};
-
-items.forEach(item=>{
-
-let key=item.name.split(" ")[0];
-
-if(!groups[key]) groups[key]=[];
-
-groups[key].push(item);
+tbody.innerHTML+=row;
 
 });
 
-let result="";
-
-for(let g in groups){
-
-result+=g+"\n";
-
-groups[g].forEach(i=>{
-
-result+="   "+i.name+" - "+i.qty+"\n";
-
-});
-
-result+="\n";
-
 }
 
-document.getElementById("output").innerText=result;
+function exportCSV(){
 
-}
+let csv="Block,Quantity,Stacks\n";
 
-function convertStacks(){
-
-let items=parseInput();
-
-let result="";
-
-items.forEach(i=>{
-
-let stacks=Math.floor(i.qty/64);
-
-let itemsLeft=i.qty%64;
-
-result+=i.name+" → "+stacks+" stacks + "+itemsLeft+" items\n";
-
+materials.forEach(m=>{
+csv+=`${m.name},${m.qty},${m.stacks}\n`;
 });
 
-document.getElementById("output").innerText=result;
+let blob=new Blob([csv],{type:"text/csv"});
 
-}
+let a=document.createElement("a");
 
-function convertChest(){
+a.href=URL.createObjectURL(blob);
 
-let items=parseInput();
+a.download="minecraft_materials.csv";
 
-let result="";
-
-items.forEach(i=>{
-
-let chest=Math.floor(i.qty/3456);
-
-let remain=i.qty%3456;
-
-let stacks=Math.floor(remain/64);
-
-let itemsLeft=remain%64;
-
-result+=i.name+"\n";
-
-result+="   "+chest+" Double Chests\n";
-
-result+="   "+stacks+" Stacks\n";
-
-result+="   "+itemsLeft+" Items\n\n";
-
-});
-
-document.getElementById("output").innerText=result;
-
-}
-
-function display(items){
-
-let result="";
-
-items.forEach(i=>{
-
-result+=i.name+" - "+i.qty+"\n";
-
-});
-
-document.getElementById("output").innerText=result;
+a.click();
 
 }
 
 </script>
 
 </body>
-
 </html>
