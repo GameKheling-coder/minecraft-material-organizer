@@ -132,7 +132,7 @@ td{
 </head>
 <body>
 
-<div class="themeToggle" onclick="toggleTheme()">🌙</div>
+<div class="themeToggle" id="themeToggle">🌙</div>
 
 <h1>Sort Kering</h1>
 <div class="subtitle">by Game Kheling</div>
@@ -140,8 +140,8 @@ td{
 <!-- Team Code Section -->
 <div style="margin-bottom:15px;">
 <input id="teamCodeInput" placeholder="Enter team code">
-<button onclick="createTeam()">Create Team</button>
-<button onclick="joinTeam()">Join Team</button>
+<button id="createTeamBtn">Create Team</button>
+<button id="joinTeamBtn">Join Team</button>
 <span id="teamStatus"></span>
 </div>
 
@@ -150,7 +150,7 @@ td{
 <div class="fileRow">
 <span class="fileText">Upload .txt file here</span>
 <input type="file" id="fileInput" accept=".txt">
-<button onclick="generate()">Generate</button>
+<button id="generateBtn">Generate</button>
 </div>
 
 <div id="progressContainer">
@@ -160,17 +160,17 @@ td{
 
 <div class="settings">
 <label>
-<input type="checkbox" id="stackToggle" checked onchange="generate()">
+<input type="checkbox" id="stackToggle" checked>
 Show Stacks
 </label>
 <br>
 <label>
-<input type="checkbox" id="chestToggle" checked onchange="generate()">
+<input type="checkbox" id="chestToggle" checked>
 Show Double Chests
 </label>
 <br>
 <label>
-<input type="checkbox" id="rawToggle" checked onchange="generate()">
+<input type="checkbox" id="rawToggle" checked>
 Enable RAW Calculator
 </label>
 </div>
@@ -200,170 +200,173 @@ game_kheling
 <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js"></script>
 
 <script>
-// Firebase Config
-var firebaseConfig = {
-apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
-authDomain: "sortkering.firebaseapp.com",
-databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
-projectId: "sortkering",
-storageBucket: "sortkering.firebasestorage.app",
-messagingSenderId: "48916302995",
-appId: "1:48916302995:web:61b8946057cd178eeb1166",
-measurementId: "G-R4H12TKSND"
-};
+window.onload = function() {
+  // Firebase config
+  var firebaseConfig = {
+    apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
+    authDomain: "sortkering.firebaseapp.com",
+    databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sortkering",
+    storageBucket: "sortkering.firebasestorage.app",
+    messagingSenderId: "48916302995",
+    appId: "1:48916302995:web:61b8946057cd178eeb1166",
+    measurementId: "G-R4H12TKSND"
+  };
 
-var app = firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
+  var app = firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
 
-let currentTeam=null;
-let isHost=false;
-let materials=[];
+  let currentTeam=null;
+  let isHost=false;
+  let materials=[];
 
-// File import
-document.getElementById("fileInput").addEventListener("change",function(){
-let file=this.files[0];
-if(!file) return;
-let reader=new FileReader();
-reader.onload=function(e){ document.getElementById("input").value=e.target.result; };
-reader.readAsText(file);
-});
+  // File import
+  document.getElementById("fileInput").addEventListener("change",function(){
+    let file=this.files[0];
+    if(!file) return;
+    let reader=new FileReader();
+    reader.onload=function(e){ document.getElementById("input").value=e.target.result; };
+    reader.readAsText(file);
+  });
 
-// Team Functions
-function createTeam(){
-let code=Math.random().toString(36).substring(2,7).toUpperCase();
-currentTeam=code;
-isHost=true;
-firebase.database().ref("teams/"+code).set({created:Date.now()});
-document.getElementById("teamStatus").innerText="Team Code: "+code;
-listenUpdates();
-}
+  // Buttons
+  document.getElementById("generateBtn").addEventListener("click", generate);
+  document.getElementById("createTeamBtn").addEventListener("click", createTeam);
+  document.getElementById("joinTeamBtn").addEventListener("click", joinTeam);
 
-function joinTeam(){
-let code=document.getElementById("teamCodeInput").value.toUpperCase();
-currentTeam=code;
-document.getElementById("teamStatus").innerText="Joined: "+code;
-listenUpdates();
-}
+  // Theme
+  document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 
-function listenUpdates(){
-if(!currentTeam) return;
-firebase.database().ref("teams/"+currentTeam+"/checks").on("value", function(snapshot){
-let data=snapshot.val();
-if(!data) return;
-for(let name in data){
-let row=document.querySelector(`[data-name='${name}'] input`);
-if(row){ row.checked=data[name]; }
-}
-updateProgress();
-});
-}
+  // Functions below
+  function createTeam(){
+    let code=Math.random().toString(36).substring(2,7).toUpperCase();
+    currentTeam=code;
+    isHost=true;
+    db.ref("teams/"+code).set({created:Date.now()});
+    document.getElementById("teamStatus").innerText="Team Code: "+code;
+    listenUpdates();
+  }
 
-// Parse Input
-function parseInput(){
-let text=document.getElementById("input").value.trim();
-let lines=text.split("\n");
-materials=[];
-lines.forEach(line=>{
-let match=line.match(/(.+?)[ :]+(\d+)/);
-if(match){
-let name=match[1].trim();
-let qty=parseInt(match[2]);
-materials.push({name:name,qty:qty,stacks:Math.floor(qty/64),chest:Math.floor(qty/3456)});
-}
-});
-}
+  function joinTeam(){
+    let code=document.getElementById("teamCodeInput").value.toUpperCase();
+    currentTeam=code;
+    document.getElementById("teamStatus").innerText="Joined: "+code;
+    listenUpdates();
+  }
 
-// Grouping
-function groupName(name){
-let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
-let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
-for(let w of woods){ if(name.startsWith(w)) return w; }
-for(let s of stones){ if(name.includes(s)) return s; }
-return "Other";
-}
+  function listenUpdates(){
+    if(!currentTeam) return;
+    db.ref("teams/"+currentTeam+"/checks").on("value", function(snapshot){
+      let data=snapshot.val();
+      if(!data) return;
+      for(let name in data){
+        let row=document.querySelector(`[data-name='${name}'] input`);
+        if(row){ row.checked=data[name]; }
+      }
+      updateProgress();
+    });
+  }
 
-// Generate
-function generate(){
-if(currentTeam && !isHost){
-alert("Only host can change list");
-return;
-}
-parseInput();
-let groups={};
-materials.forEach(m=>{
-let g=groupName(m.name);
-if(!groups[g]) groups[g]=[];
-groups[g].push(m);
-});
-render(groups);
-}
+  function parseInput(){
+    let text=document.getElementById("input").value.trim();
+    let lines=text.split("\n");
+    materials=[];
+    lines.forEach(line=>{
+      let match=line.match(/(.+?)[ :]+(\d+)/);
+      if(match){
+        let name=match[1].trim();
+        let qty=parseInt(match[2]);
+        materials.push({name:name,qty:qty,stacks:Math.floor(qty/64),chest:Math.floor(qty/3456)});
+      }
+    });
+  }
 
-// Render Table
-function render(groups){
-let tbody=document.querySelector("#table tbody");
-tbody.innerHTML="";
-let showStacks=document.getElementById("stackToggle").checked;
-let showChest=document.getElementById("chestToggle").checked;
-let rawEnabled=document.getElementById("rawToggle").checked;
+  function groupName(name){
+    let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
+    let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
+    for(let w of woods){ if(name.startsWith(w)) return w; }
+    for(let s of stones){ if(name.includes(s)) return s; }
+    return "Other";
+  }
 
-for(let g in groups){
-let rawTotal=0;
-groups[g].forEach(m=>{
-let name=m.name.toLowerCase();
-let qty=m.qty;
-if(rawEnabled){
-if(name.includes("slab")){ let planks=(qty/6)*3; rawTotal+=planks/4; }
-else if(name.includes("stairs")){ let planks=(qty/4)*6; rawTotal+=planks/4; }
-else if(name.includes("planks")){ rawTotal+=qty/4; }
-else if(name.includes("log")){ rawTotal+=qty; }
-}
-});
-tbody.innerHTML+=`<tr class="group">
-<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
-<td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
-</tr>`;
-groups[g].forEach(m=>{
-let stacks=showStacks?m.stacks:"-";
-let chest=showChest?m.chest:"-";
-tbody.innerHTML+=`<tr data-group="${g}" data-name="${m.name}">
-<td><input type="checkbox" onchange="updateCheck(this,'${m.name}')"></td>
-<td>${m.name}</td>
-<td>${m.qty}</td>
-<td>${stacks}</td>
-<td>${chest}</td>
-</tr>`;
-});
-}
-updateProgress();
-}
+  function generate(){
+    if(currentTeam && !isHost){
+      alert("Only host can change list");
+      return;
+    }
+    parseInput();
+    let groups={};
+    materials.forEach(m=>{
+      let g=groupName(m.name);
+      if(!groups[g]) groups[g]=[];
+      groups[g].push(m);
+    });
+    render(groups);
+  }
 
-// Group Tick
-function toggleGroup(group){
-let rows=document.querySelectorAll(`[data-group="${group}"] input`);
-rows.forEach(r=>{ r.checked=!r.checked; updateCheck(r,r.closest('tr').dataset.name); });
-updateProgress();
-}
+  function render(groups){
+    let tbody=document.querySelector("#table tbody");
+    tbody.innerHTML="";
+    let showStacks=document.getElementById("stackToggle").checked;
+    let showChest=document.getElementById("chestToggle").checked;
+    let rawEnabled=document.getElementById("rawToggle").checked;
 
-// Checkbox update with Firebase
-function updateCheck(box,name){
-updateProgress();
-if(!currentTeam) return;
-firebase.database().ref("teams/"+currentTeam+"/checks/"+name).set(box.checked);
-}
+    for(let g in groups){
+      let rawTotal=0;
+      groups[g].forEach(m=>{
+        let name=m.name.toLowerCase();
+        let qty=m.qty;
+        if(rawEnabled){
+          if(name.includes("slab")){ let planks=(qty/6)*3; rawTotal+=planks/4; }
+          else if(name.includes("stairs")){ let planks=(qty/4)*6; rawTotal+=planks/4; }
+          else if(name.includes("planks")){ rawTotal+=qty/4; }
+          else if(name.includes("log")){ rawTotal+=qty; }
+        }
+      });
+      tbody.innerHTML+=`<tr class="group">
+      <td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
+      <td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
+      </tr>`;
+      groups[g].forEach(m=>{
+        let stacks=showStacks?m.stacks:"-";
+        let chest=showChest? m.chest:"-";
+        tbody.innerHTML+=`<tr data-group="${g}" data-name="${m.name}">
+        <td><input type="checkbox" onchange="updateCheck(this,'${m.name}')"></td>
+        <td>${m.name}</td>
+        <td>${m.qty}</td>
+        <td>${stacks}</td>
+        <td>${chest}</td>
+        </tr>`;
+      });
+    }
+    updateProgress();
+  }
 
-// Progress bar
-function updateProgress(){
-let checks=document.querySelectorAll("tbody input[type='checkbox']");
-let total=checks.length;
-let done=0;
-checks.forEach(c=>{ if(c.checked) done++; });
-let percent=Math.floor((done/total)*100);
-document.getElementById("progressBar").style.width=percent+"%";
-document.getElementById("progressText").innerText="Progress: "+percent+"%";
-}
+  function toggleGroup(group){
+    let rows=document.querySelectorAll(`[data-group="${group}"] input`);
+    rows.forEach(r=>{ r.checked=!r.checked; updateCheck(r,r.closest('tr').dataset.name); });
+    updateProgress();
+  }
 
-// Theme
-function toggleTheme(){ document.body.classList.toggle("light"); }
+  function updateCheck(box,name){
+    updateProgress();
+    if(!currentTeam) return;
+    db.ref("teams/"+currentTeam+"/checks/"+name).set(box.checked);
+  }
+
+  function updateProgress(){
+    let checks=document.querySelectorAll("tbody input[type='checkbox']");
+    let total=checks.length;
+    let done=0;
+    checks.forEach(c=>{ if(c.checked) done++; });
+    let percent=Math.floor((done/total)*100);
+    document.getElementById("progressBar").style.width=percent+"%";
+    document.getElementById("progressText").innerText="Progress: "+percent+"%";
+  }
+
+  function toggleTheme(){ document.body.classList.toggle("light"); }
+
+}; // window.onload
 </script>
 
 </body>
