@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Sort Kering</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
@@ -19,13 +17,13 @@ transition:0.3s;
 }
 
 .light{
-background:#f3f6fb;
+background:#f4f7fb;
 color:#111;
 }
 
 h1{
 text-align:center;
-font-size:42px;
+font-size:40px;
 font-weight:800;
 background:linear-gradient(90deg,#ff7a18,#32d2aa,#5aa9ff);
 -webkit-background-clip:text;
@@ -35,19 +33,38 @@ color:transparent;
 .subtitle{
 text-align:center;
 margin-top:-8px;
-margin-bottom:20px;
-font-size:14px;
+margin-bottom:15px;
+font-size:13px;
 opacity:0.8;
 }
 
+/* top right theme toggle */
+
+.themeToggle{
+position:fixed;
+top:15px;
+right:15px;
+font-size:22px;
+cursor:pointer;
+background:#253547;
+border-radius:50%;
+padding:8px 10px;
+}
+
+/* input */
+
 textarea{
 width:100%;
-height:140px;
+height:130px;
 border-radius:10px;
 border:none;
 padding:10px;
 background:#253547;
 color:white;
+}
+
+input[type=file]{
+margin-top:10px;
 }
 
 button{
@@ -60,6 +77,32 @@ color:white;
 font-weight:600;
 cursor:pointer;
 }
+
+/* progress */
+
+#progressContainer{
+width:100%;
+height:18px;
+background:#2d3f55;
+border-radius:10px;
+margin-top:15px;
+overflow:hidden;
+}
+
+#progressBar{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#22c55e,#4ade80);
+transition:0.3s;
+}
+
+#progressText{
+margin-top:5px;
+font-size:13px;
+opacity:0.8;
+}
+
+/* settings */
 
 .settings{
 margin-top:20px;
@@ -87,34 +130,11 @@ border-bottom:1px solid rgba(255,255,255,0.05);
 .group{
 background:#3b526e;
 font-weight:700;
-font-size:16px;
 }
 
 .group span{
 color:#7CFFB2;
 font-weight:700;
-}
-
-#progressContainer{
-width:100%;
-height:18px;
-background:#2d3f55;
-border-radius:10px;
-margin-top:15px;
-overflow:hidden;
-}
-
-#progressBar{
-width:0%;
-height:100%;
-background:linear-gradient(90deg,#22c55e,#4ade80);
-transition:0.3s;
-}
-
-#progressText{
-margin-top:5px;
-font-size:13px;
-opacity:0.8;
 }
 
 .footer{
@@ -130,15 +150,22 @@ font-weight:600;
 }
 
 </style>
-
 </head>
 
 <body>
 
+<div class="themeToggle" onclick="toggleTheme()">🌙</div>
+
 <h1>Sort Kering</h1>
 <div class="subtitle">by Game Kheling</div>
 
-<textarea id="input" placeholder="Paste Litematica list here"></textarea>
+<textarea id="input" placeholder="Paste Litematica material list"></textarea>
+
+<input type="file" id="fileInput" accept=".txt,.litematic">
+
+<br>
+
+<button onclick="generate()">Generate List</button>
 
 <div id="progressContainer">
 <div id="progressBar"></div>
@@ -146,36 +173,25 @@ font-weight:600;
 
 <div id="progressText">Progress: 0%</div>
 
-<br>
-
-<button onclick="generate()">Generate List</button>
-
 <div class="settings">
 
 <label>
-<input type="checkbox" checked onclick="toggleTheme()">
-Light / Dark Mode
-</label>
-
-<br>
-
-<label>
-<input type="checkbox" id="stackToggle" checked>
+<input type="checkbox" id="stackToggle" checked onchange="generate()">
 Show Stacks
 </label>
 
 <br>
 
 <label>
-<input type="checkbox" id="chestToggle" checked>
+<input type="checkbox" id="chestToggle" checked onchange="generate()">
 Show Double Chests
 </label>
 
 <br>
 
 <label>
-<input type="checkbox" id="rawToggle" checked>
-Enable RAW Calculation
+<input type="checkbox" id="rawToggle" checked onchange="generate()">
+Enable RAW Calculator
 </label>
 
 </div>
@@ -184,11 +200,11 @@ Enable RAW Calculation
 
 <thead>
 <tr>
-<th>Done</th>
+<th>✔</th>
 <th>Block</th>
 <th>Qty</th>
 <th>Stacks</th>
-<th>Double Chests</th>
+<th>Double Chest</th>
 </tr>
 </thead>
 
@@ -206,6 +222,26 @@ game_kheling
 <script>
 
 let materials=[];
+
+/* file import */
+
+document.getElementById("fileInput").addEventListener("change",function(){
+
+let file=this.files[0];
+
+if(!file) return;
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+
+document.getElementById("input").value=e.target.result;
+
+};
+
+reader.readAsText(file);
+
+});
 
 function parseInput(){
 
@@ -238,11 +274,13 @@ chest:Math.floor(qty/3456)
 
 }
 
+/* grouping */
+
 function groupName(name){
 
 let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
 
-let stones=["Stone","Cobblestone","Deepslate","Blackstone","Granite","Diorite","Andesite"];
+let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
 
 for(let w of woods){
 if(name.startsWith(w)) return w;
@@ -331,19 +369,14 @@ rawTotal+=qty;
 
 tbody.innerHTML+=`
 <tr class="group">
-<td>
-<input type="checkbox" onclick="toggleGroup('${g}')">
-</td>
-<td colspan="4">
-${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span>
-</td>
+<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
+<td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
 </tr>
 `;
 
 groups[g].forEach(m=>{
 
 let stacks=showStacks?m.stacks:"-";
-
 let chest=showChest?m.chest:"-";
 
 tbody.innerHTML+=`
@@ -362,6 +395,8 @@ tbody.innerHTML+=`
 
 }
 
+/* group tick */
+
 function toggleGroup(group){
 
 let rows=document.querySelectorAll(`[data-group="${group}"] input`);
@@ -373,6 +408,8 @@ r.checked=!r.checked;
 updateProgress();
 
 }
+
+/* progress */
 
 function updateProgress(){
 
@@ -393,6 +430,8 @@ document.getElementById("progressBar").style.width=percent+"%";
 document.getElementById("progressText").innerText="Progress: "+percent+"%";
 
 }
+
+/* theme */
 
 function toggleTheme(){
 
