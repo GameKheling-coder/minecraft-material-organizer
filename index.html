@@ -3,224 +3,367 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sort Kering</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
-body{font-family:'Poppins',sans-serif;margin:0;padding:10px;background:#f4f4f4;color:#333;}
-body.light{background:#fff;color:#111;}
-h1{font-weight:800;color:#ff6600;margin-bottom:0;} 
-.subtitle{font-size:0.8em;color:#555;margin-bottom:15px;}
-textarea{width:100%;height:80px;margin-bottom:10px;padding:5px;font-size:14px;}
-button{padding:6px 12px;margin:2px;border:none;background:#ff6600;color:white;border-radius:5px;cursor:pointer;}
-button:hover{background:#ff8533;}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
-th,td{border:1px solid #ccc;padding:5px;text-align:center;}
-tr.group{background:#ffd699;font-weight:bold;color:#222;}
-tr.group:hover{background:#ffbf80;}
-tr.group td{font-weight:bold;}
-.fileRow{display:flex;align-items:center;margin-bottom:10px;}
-.fileRow input[type=file]{margin-left:10px;}
-.settings{margin:10px 0;}
-#progressContainer{width:100%;background:#ddd;height:15px;margin-top:10px;border-radius:5px;}
-#progressBar{height:100%;width:0%;background:green;border-radius:5px;}
-.themeToggle{position:fixed;top:10px;right:10px;font-size:24px;cursor:pointer;}
-.hostPanel{position:fixed;top:50px;right:10px;padding:5px 10px;background:#ff8533;color:white;border-radius:5px;display:none;}
-.footer{margin-top:20px;font-size:0.9em;}
-a{text-decoration:none;color:#ff6600;}
-a:hover{text-decoration:underline;}
+body{
+  font-family:Poppins;
+  background:#1e2a38;
+  color:white;
+  padding:20px;
+  transition:0.3s;
+}
+.light{
+  background:#f4f7fb;
+  color:#111;
+}
+h1{
+  text-align:center;
+  font-size:40px;
+  font-weight:800;
+  background:linear-gradient(90deg,#ff7a18,#32d2aa,#5aa9ff);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+.subtitle{
+  text-align:center;
+  margin-top:-8px;
+  margin-bottom:15px;
+  font-size:13px;
+  opacity:0.8;
+}
+.themeToggle{
+  position:fixed;
+  top:15px;
+  right:15px;
+  font-size:22px;
+  cursor:pointer;
+  background:#253547;
+  border-radius:50%;
+  padding:8px 10px;
+}
+textarea{
+  width:100%;
+  height:130px;
+  border-radius:10px;
+  border:none;
+  padding:10px;
+  background:#253547;
+  color:white;
+}
+.fileRow{
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.fileText{
+  font-size:13px;
+  opacity:0.8;
+}
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  background:#38bdf8;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+}
+#progressContainer{
+  width:100%;
+  height:18px;
+  background:#2d3f55;
+  border-radius:10px;
+  margin-top:15px;
+  overflow:hidden;
+}
+#progressBar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+  transition:0.3s;
+}
+#progressText{
+  margin-top:5px;
+  font-size:13px;
+  opacity:0.8;
+}
+.settings{
+  margin-top:20px;
+  padding:15px;
+  border-radius:10px;
+  background:#253547;
+}
+table{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+}
+th{
+  background:#31465f;
+  padding:10px;
+}
+td{
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.group{
+  background:#3b526e;
+  font-weight:700;
+}
+.group span{
+  color:#7CFFB2;
+  font-weight:700;
+}
+.footer{
+  text-align:center;
+  margin-top:40px;
+  font-size:14px;
+}
+.footer a{
+  color:#38bdf8;
+  text-decoration:none;
+  font-weight:600;
+}
 </style>
 </head>
 <body>
 
-<div class="themeToggle" onclick="toggleTheme()">☀️</div>
-<div class="hostPanel" id="hostPanel">Host Panel</div>
+<div class="themeToggle" onclick="toggleTheme()">🌙</div>
 
 <h1>Sort Kering</h1>
 <div class="subtitle">by Game Kheling</div>
 
-<div>
-  <input id="teamCodeInput" placeholder="Enter team code">
-  <button onclick="createTeam()">Create Team</button>
-  <button onclick="joinTeam()">Join Team</button>
-  <span id="teamStatus"></span>
+<!-- Team Code Section -->
+<div style="margin-bottom:15px;">
+<input id="teamCodeInput" placeholder="Enter team code">
+<button onclick="createTeam()">Create Team</button>
+<button onclick="joinTeam()">Join Team</button>
+<span id="teamStatus"></span>
 </div>
 
-<textarea id="input" placeholder="Paste Litematica material list here"></textarea>
+<textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
 <div class="fileRow">
-  <span>Upload .txt file here</span>
-  <input type="file" id="fileInput" accept=".txt">
-  <button onclick="generate()">Generate</button>
+<span class="fileText">Upload .txt file here</span>
+<input type="file" id="fileInput" accept=".txt">
+<button onclick="generate()">Generate</button>
 </div>
 
-<div id="progressContainer"><div id="progressBar"></div></div>
+<div id="progressContainer">
+<div id="progressBar"></div>
+</div>
 <div id="progressText">Progress: 0%</div>
 
 <div class="settings">
-<label><input type="checkbox" id="stackToggle" checked onchange="generate()"> Show Stacks</label><br>
-<label><input type="checkbox" id="chestToggle" checked onchange="generate()"> Show Double Chests</label><br>
-<label><input type="checkbox" id="rawToggle" checked onchange="generate()"> Enable RAW Calculator</label>
+<label>
+<input type="checkbox" id="stackToggle" checked onchange="generate()">
+Show Stacks
+</label>
+<br>
+<label>
+<input type="checkbox" id="chestToggle" checked onchange="generate()">
+Show Double Chests
+</label>
+<br>
+<label>
+<input type="checkbox" id="rawToggle" checked onchange="generate()">
+Enable RAW Calculator
+</label>
 </div>
 
 <table id="table">
 <thead>
-<tr><th>✔</th><th>Block</th><th>Qty</th><th>Stacks</th><th>Double Chest</th></tr>
+<tr>
+<th>✔</th>
+<th>Block</th>
+<th>Qty</th>
+<th>Stacks</th>
+<th>Double Chest</th>
+</tr>
 </thead>
 <tbody></tbody>
 </table>
 
-<div class="footer">Instagram: <a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">game_kheling</a></div>
+<div class="footer">
+Instagram :
+<a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">
+game_kheling
+</a>
+</div>
 
-<!-- Firebase Scripts -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<!-- Firebase CDN -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-<script>
-// Firebase setup (phone-friendly)
+// Firebase Config
 const firebaseConfig = {
-  apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
-  authDomain: "sortkering.firebaseapp.com",
-  databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "sortkering",
-  storageBucket: "sortkering.firebasestorage.app",
-  messagingSenderId: "48916302995",
-  appId: "1:48916302995:web:61b8946057cd178eeb1166",
-  measurementId: "G-R4H12TKSND"
+apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
+authDomain: "sortkering.firebaseapp.com",
+databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId: "sortkering",
+storageBucket: "sortkering.firebasestorage.app",
+messagingSenderId: "48916302995",
+appId: "1:48916302995:web:61b8946057cd178eeb1166",
+measurementId: "G-R4H12TKSND"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-firebase.auth().signInAnonymously().catch(err=>console.error(err));
 
-let currentTeam=null, isHost=false;
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let currentTeam=null;
+let isHost=false;
 let materials=[];
 
-// File upload
+// File import
 document.getElementById("fileInput").addEventListener("change",function(){
-  let file=this.files[0]; if(!file) return;
-  let reader=new FileReader();
-  reader.onload=function(e){document.getElementById("input").value=e.target.result;};
-  reader.readAsText(file);
+let file=this.files[0];
+if(!file) return;
+let reader=new FileReader();
+reader.onload=function(e){ document.getElementById("input").value=e.target.result; };
+reader.readAsText(file);
 });
 
-// Parse Litematica input
+// Team Functions
+function createTeam(){
+let code=Math.random().toString(36).substring(2,7).toUpperCase();
+currentTeam=code;
+isHost=true;
+set(ref(db,"teams/"+code),{created:Date.now()});
+document.getElementById("teamStatus").innerText="Team Code: "+code;
+listenUpdates();
+}
+
+function joinTeam(){
+let code=document.getElementById("teamCodeInput").value.toUpperCase();
+currentTeam=code;
+document.getElementById("teamStatus").innerText="Joined: "+code;
+listenUpdates();
+}
+
+function listenUpdates(){
+if(!currentTeam) return;
+onValue(ref(db,"teams/"+currentTeam+"/checks"), snapshot=>{
+let data=snapshot.val();
+if(!data) return;
+for(let name in data){
+let row=document.querySelector(`[data-name='${name}'] input`);
+if(row){ row.checked=data[name]; }
+}
+updateProgress();
+});
+}
+
+// Parse Input
 function parseInput(){
-  let text=document.getElementById("input").value.trim();
-  let lines=text.split("\n");
-  materials=[];
-  lines.forEach(line=>{
-    let match=line.match(/(.+?)[ :]+(\d+)/);
-    if(match){ let name=match[1].trim(), qty=parseInt(match[2]);
-      materials.push({name,qty,stacks:Math.floor(qty/64),chest:Math.floor(qty/3456)});
-    }
-  });
+let text=document.getElementById("input").value.trim();
+let lines=text.split("\n");
+materials=[];
+lines.forEach(line=>{
+let match=line.match(/(.+?)[ :]+(\d+)/);
+if(match){
+let name=match[1].trim();
+let qty=parseInt(match[2]);
+materials.push({name:name,qty:qty,stacks:Math.floor(qty/64),chest:Math.floor(qty/3456)});
+}
+});
 }
 
-// Generate table
+// Grouping
+function groupName(name){
+let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
+let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
+for(let w of woods){ if(name.startsWith(w)) return w; }
+for(let s of stones){ if(name.includes(s)) return s; }
+return "Other";
+}
+
+// Generate
 function generate(){
-  parseInput();
-  if(currentTeam && !isHost){ alert("Only host can change list"); return; }
-  let groups={};
-  materials.forEach(m=>{
-    let g=m.name.split(" ")[0];
-    if(!groups[g]) groups[g]=[];
-    groups[g].push(m);
-  });
-  if(currentTeam && isHost){
-    let matObj = materials.reduce((o,m)=>{o[m.name]=m.qty;return o;}, {});
-    db.ref("teams/"+currentTeam+"/materials").set(matObj);
-  }
-  render(groups);
+if(currentTeam && !isHost){
+alert("Only host can change list");
+return;
+}
+parseInput();
+let groups={};
+materials.forEach(m=>{
+let g=groupName(m.name);
+if(!groups[g]) groups[g]=[];
+groups[g].push(m);
+});
+render(groups);
 }
 
-// Render table
+// Render Table
 function render(groups){
-  let tbody=document.querySelector("#table tbody"); tbody.innerHTML="";
-  let showStacks=document.getElementById("stackToggle").checked;
-  let showChest=document.getElementById("chestToggle").checked;
-  let rawEnabled=document.getElementById("rawToggle").checked;
-  for(let g in groups){
-    let rawTotal=0;
-    groups[g].forEach(m=>{
-      if(rawEnabled){
-        if(m.name.toLowerCase().includes("slab")) rawTotal+=Math.ceil((m.qty/6)*3/4);
-        else if(m.name.toLowerCase().includes("stairs")) rawTotal+=Math.ceil((m.qty/4)*6/4);
-        else if(m.name.toLowerCase().includes("plank")) rawTotal+=Math.ceil(m.qty/4);
-        else if(m.name.toLowerCase().includes("log")) rawTotal+=m.qty;
-      }
-    });
-    tbody.innerHTML+=`<tr class="group"><td><input type="checkbox" onclick="toggleGroup('${g}')"></td><td colspan="4">${g.toUpperCase()} | RAW: ${rawTotal}</td></tr>`;
-    groups[g].forEach(m=>{
-      let stacks=showStacks?m.stacks:"-";
-      let chest=showChest?m.chest:"-";
-      tbody.innerHTML+=`<tr data-group="${g}" data-name="${m.name}"><td><input type="checkbox" onchange="updateCheck(this,'${m.name}')"></td><td>${m.name}</td><td>${m.qty}</td><td>${stacks}</td><td>${chest}</td></tr>`;
-    });
-  }
-  updateProgress();
+let tbody=document.querySelector("#table tbody");
+tbody.innerHTML="";
+let showStacks=document.getElementById("stackToggle").checked;
+let showChest=document.getElementById("chestToggle").checked;
+let rawEnabled=document.getElementById("rawToggle").checked;
+
+for(let g in groups){
+let rawTotal=0;
+groups[g].forEach(m=>{
+let name=m.name.toLowerCase();
+let qty=m.qty;
+if(rawEnabled){
+if(name.includes("slab")){ let planks=(qty/6)*3; rawTotal+=planks/4; }
+else if(name.includes("stairs")){ let planks=(qty/4)*6; rawTotal+=planks/4; }
+else if(name.includes("planks")){ rawTotal+=qty/4; }
+else if(name.includes("log")){ rawTotal+=qty; }
+}
+});
+tbody.innerHTML+=`<tr class="group">
+<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
+<td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
+</tr>`;
+groups[g].forEach(m=>{
+let stacks=showStacks?m.stacks:"-";
+let chest=showChest?m.chest:"-";
+tbody.innerHTML+=`<tr data-group="${g}" data-name="${m.name}">
+<td><input type="checkbox" onchange="updateCheck(this,'${m.name}')"></td>
+<td>${m.name}</td>
+<td>${m.qty}</td>
+<td>${stacks}</td>
+<td>${chest}</td>
+</tr>`;
+});
+}
+updateProgress();
 }
 
-// Toggle all checkboxes in a group
+// Group Tick
 function toggleGroup(group){
-  let rows=document.querySelectorAll(`[data-group="${group}"] input`);
-  rows.forEach(r=>{r.checked=!r.checked;});
-  updateProgress();
+let rows=document.querySelectorAll(`[data-group="${group}"] input`);
+rows.forEach(r=>{ r.checked=!r.checked; updateCheck(r,r.closest('tr').dataset.name); });
+updateProgress();
+}
+
+// Checkbox update with Firebase
+function updateCheck(box,name){
+updateProgress();
+if(!currentTeam) return;
+set(ref(db,"teams/"+currentTeam+"/checks/"+name),box.checked);
 }
 
 // Progress bar
 function updateProgress(){
-  let checks=document.querySelectorAll("tbody input[type='checkbox']");
-  let total=checks.length; let done=0;
-  checks.forEach(c=>{if(c.checked) done++;});
-  let percent=Math.floor((done/total)*100);
-  document.getElementById("progressBar").style.width=percent+"%";
-  document.getElementById("progressText").innerText="Progress: "+percent+"%";
+let checks=document.querySelectorAll("tbody input[type='checkbox']");
+let total=checks.length;
+let done=0;
+checks.forEach(c=>{ if(c.checked) done++; });
+let percent=Math.floor((done/total)*100);
+document.getElementById("progressBar").style.width=percent+"%";
+document.getElementById("progressText").innerText="Progress: "+percent+"%";
 }
 
-// Light/Dark theme
-function toggleTheme(){document.body.classList.toggle("light");}
-
-// Team code
-function createTeam(){
-  let code=Math.random().toString(36).substring(2,7).toUpperCase();
-  currentTeam=code; isHost=true;
-  db.ref("teams/"+code).set({created:Date.now(), materials:materials.reduce((o,m)=>{o[m.name]=m.qty;return o;},{}), checks:{}});
-  document.getElementById("teamStatus").innerText="Team Code: "+code;
-  document.getElementById("hostPanel").style.display="block";
-  listenUpdates();
-}
-function joinTeam(){
-  let code=document.getElementById("teamCodeInput").value.toUpperCase();
-  if(!code) return;
-  currentTeam=code; isHost=false;
-  document.getElementById("teamStatus").innerText="Joined: "+code;
-  document.getElementById("hostPanel").style.display="none";
-  listenUpdates();
-}
-
-// Update checkbox in Firebase
-function updateCheck(box,name){
-  updateProgress();
-  if(!currentTeam) return;
-  db.ref("teams/"+currentTeam+"/checks/"+name).set(box.checked);
-}
-
-// Listen for Firebase updates
-function listenUpdates(){
-  if(!currentTeam) return;
-  db.ref("teams/"+currentTeam+"/materials").once("value").then(snap=>{
-    if(isHost) return;
-    let matData=snap.val();
-    if(matData){ materials.forEach(m=>{if(matData[m.name]!==undefined) m.qty=matData[m.name];}); generate();}
-  });
-  db.ref("teams/"+currentTeam+"/checks").on("value",snapshot=>{
-    let data=snapshot.val();
-    if(!data) return;
-    for(let name in data){
-      let row=document.querySelector(`[data-name='${name}'] input`);
-      if(row) row.checked=data[name];
-    }
-    updateProgress();
-  });
-}
+// Theme
+function toggleTheme(){ document.body.classList.toggle("light"); }
 
 </script>
 </body>
