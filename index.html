@@ -1,124 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Sort Kering</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 
-:root{
---bg1:#141e30;
---bg2:#243b55;
---card:#ffffff10;
---text:white;
---accent:#6ee7b7;
-}
-
 body{
-background:linear-gradient(135deg,var(--bg1),var(--bg2));
 font-family:Poppins;
-color:var(--text);
-text-align:center;
+background:#1e2a38;
+color:white;
 padding:20px;
 transition:0.3s;
 }
 
 .light{
---bg1:#f0f4ff;
---bg2:#ffffff;
---card:#ffffff;
---text:#222;
+background:#f2f6fb;
+color:#111;
 }
 
 h1{
-font-size:40px;
-background:linear-gradient(90deg,#ff7a18,#32d2aa,#4facfe);
+text-align:center;
+font-size:42px;
+font-weight:800;
+background:linear-gradient(90deg,#ff7a18,#32d2aa,#5aa9ff);
 -webkit-background-clip:text;
 color:transparent;
-margin-bottom:0;
 }
 
 .subtitle{
+text-align:center;
+margin-top:-10px;
+margin-bottom:20px;
 font-size:14px;
 opacity:0.8;
-margin-bottom:20px;
 }
 
 textarea{
-width:95%;
-height:150px;
-background:var(--card);
-color:var(--text);
-border:none;
+width:100%;
+height:140px;
 border-radius:10px;
+border:none;
 padding:10px;
+background:#253547;
+color:white;
 }
 
 button{
-margin:6px;
+margin-top:10px;
 padding:10px 15px;
 border:none;
 border-radius:8px;
-background:#34d399;
-color:black;
-font-weight:bold;
-}
-
-button:hover{
-background:#10b981;
+background:#38bdf8;
+color:white;
+font-weight:600;
 }
 
 .settings{
 margin-top:20px;
-background:var(--card);
 padding:15px;
 border-radius:10px;
-text-align:left;
+background:#253547;
 }
 
 table{
 width:100%;
 margin-top:20px;
 border-collapse:collapse;
-background:var(--card);
-border-radius:10px;
-overflow:hidden;
 }
 
-th,td{
+th{
+background:#31465f;
 padding:10px;
-border-bottom:1px solid #00000020;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
 .group{
-background:#2f4056;
-font-weight:bold;
+background:#3b526e;
+font-weight:700;
 font-size:16px;
-letter-spacing:1px;
-color:#ffffff;
 }
 
-.raw{
-background:#00000015;
-color:#7ef9b4;
-font-size:13px;
+.group span{
+color:#7CFFB2;
+font-weight:700;
 }
 
-#progressContainer{
-width:100%;
-background:#00000020;
-border-radius:10px;
-margin-top:10px;
+.footer{
+text-align:center;
+margin-top:40px;
+font-size:14px;
 }
 
-#progressBar{
-width:0%;
-height:18px;
-background:#22c55e;
-border-radius:10px;
+.footer a{
+color:#38bdf8;
+text-decoration:none;
+font-weight:600;
 }
 
 </style>
@@ -127,42 +112,34 @@ border-radius:10px;
 <body>
 
 <h1>Sort Kering</h1>
-<div class="subtitle">Game Kheling</div>
+<div class="subtitle">by Game Kheling</div>
 
-<div id="progressContainer">
-<div id="progressBar"></div>
-</div>
-
-<p id="progressText">Progress: 0%</p>
-
-<textarea id="input" placeholder="Paste Litematica material list"></textarea>
+<textarea id="input" placeholder="Paste Litematica list here"></textarea>
 
 <br>
-
-<button onclick="generate()">Generate Checklist</button>
-<button onclick="exportCSV()">Export Excel</button>
-<button onclick="toggleMode()">Light / Dark</button>
+<button onclick="generate()">Generate List</button>
 
 <div class="settings">
 
-<h3>Settings</h3>
-
 <label>
-<input type="checkbox" id="groupToggle" checked>
-Smart Grouping
+<input type="checkbox" id="darkToggle" checked onchange="toggleTheme()">
+Dark Mode
 </label>
+
 <br>
 
 <label>
 <input type="checkbox" id="stackToggle" checked>
 Show Stacks
 </label>
+
 <br>
 
 <label>
 <input type="checkbox" id="chestToggle" checked>
 Show Double Chests
 </label>
+
 <br>
 
 <label>
@@ -188,6 +165,13 @@ Enable RAW Calculation
 
 </table>
 
+<div class="footer">
+Instagram : 
+<a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">
+game_kheling
+</a>
+</div>
+
 <script>
 
 let materials=[];
@@ -207,6 +191,7 @@ let match=line.match(/(.+?)[ :]+(\d+)/);
 if(match){
 
 let name=match[1].trim();
+
 let qty=parseInt(match[2]);
 
 materials.push({
@@ -229,15 +214,11 @@ let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherr
 let stones=["Stone","Cobblestone","Deepslate","Blackstone","Granite","Diorite","Andesite"];
 
 for(let w of woods){
-
 if(name.startsWith(w)) return w;
-
 }
 
 for(let s of stones){
-
 if(name.includes(s)) return s;
-
 }
 
 return "Other";
@@ -248,13 +229,11 @@ function generate(){
 
 parseInput();
 
-let useGrouping=document.getElementById("groupToggle").checked;
-
 let groups={};
 
 materials.forEach(m=>{
 
-let g=useGrouping?groupName(m.name):"All";
+let g=groupName(m.name);
 
 if(!groups[g]) groups[g]=[];
 
@@ -282,48 +261,64 @@ for(let g in groups){
 
 let rawTotal=0;
 
-if(rawEnabled){
-
 groups[g].forEach(m=>{
 
 let name=m.name.toLowerCase();
+
 let qty=m.qty;
 
-if(name.includes("slab")) rawTotal+=(qty/6*3)/4;
-else if(name.includes("stairs")) rawTotal+=(qty/4*6)/4;
-else if(name.includes("planks")) rawTotal+=qty/4;
-else if(name.includes("log")) rawTotal+=qty;
+if(rawEnabled){
 
-});
+if(name.includes("slab")){
+
+let planks=(qty/6)*3;
+rawTotal+=planks/4;
 
 }
 
-tbody.innerHTML+=`
-<tr class="raw">
-<td><input type="checkbox" onclick="toggleGroup(this)"></td>
-<td colspan="4">RAW ${g}: ${Math.ceil(rawTotal)}</td>
-</tr>
-`;
+else if(name.includes("stairs")){
 
-let rawText = rawEnabled 
-? ` | <span style="color:#7CFFB2;font-weight:bold;">RAW: ${Math.ceil(rawTotal)}</span>` 
-: "";
+let planks=(qty/4)*6;
+rawTotal+=planks/4;
+
+}
+
+else if(name.includes("planks")){
+
+rawTotal+=qty/4;
+
+}
+
+else if(name.includes("log")){
+
+rawTotal+=qty;
+
+}
+
+}
+
+});
 
 tbody.innerHTML+=`
 <tr class="group">
-<td></td>
-<td colspan="4">${g.toUpperCase()}${rawText}</td>
+<td>
+<input type="checkbox" onclick="toggleGroup('${g}')">
+</td>
+<td colspan="4">
+${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span>
+</td>
 </tr>
 `;
 
 groups[g].forEach(m=>{
 
 let stacks=showStacks?m.stacks:"-";
+
 let chest=showChest?m.chest:"-";
 
 tbody.innerHTML+=`
-<tr>
-<td><input type="checkbox" onclick="updateProgress()"></td>
+<tr data-group="${g}">
+<td><input type="checkbox"></td>
 <td>${m.name}</td>
 <td>${m.qty}</td>
 <td>${stacks}</td>
@@ -337,65 +332,19 @@ tbody.innerHTML+=`
 
 }
 
-function toggleGroup(box){
+function toggleGroup(group){
 
-let row=box.closest("tr");
+let rows=document.querySelectorAll(`[data-group="${group}"] input`);
 
-let next=row.nextElementSibling;
+rows.forEach(r=>{
 
-while(next && !next.classList.contains("raw")){
+r.checked=!r.checked;
 
-if(next.querySelector("input")){
-next.querySelector("input").checked=box.checked;
-}
-
-next=next.nextElementSibling;
-
-}
-
-updateProgress();
-
-}
-
-function updateProgress(){
-
-let checks=document.querySelectorAll("tbody input[type=checkbox]");
-
-let done=0;
-
-checks.forEach(c=>{
-if(c.checked) done++;
 });
 
-let percent=Math.floor(done/checks.length*100);
-
-document.getElementById("progressBar").style.width=percent+"%";
-
-document.getElementById("progressText").innerText="Progress: "+percent+"%";
-
 }
 
-function exportCSV(){
-
-let csv="Block,Quantity,Stacks,DoubleChests\n";
-
-materials.forEach(m=>{
-csv+=`${m.name},${m.qty},${m.stacks},${m.chest}\n`;
-});
-
-let blob=new Blob([csv],{type:"text/csv"});
-
-let a=document.createElement("a");
-
-a.href=URL.createObjectURL(blob);
-
-a.download="materials.csv";
-
-a.click();
-
-}
-
-function toggleMode(){
+function toggleTheme(){
 
 document.body.classList.toggle("light");
 
