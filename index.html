@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Minecraft Material Organizer</title>
+
+<style>
+
+body{
+background:linear-gradient(135deg,#1a1a1a,#0f2027);
+font-family:Arial;
+color:white;
+text-align:center;
+padding:20px;
+}
+
+h1{
+margin-bottom:10px;
+}
+
+textarea{
+
+width:95%;
+height:180px;
+border-radius:10px;
+border:none;
+padding:10px;
+font-size:14px;
+background:#222;
+color:white;
+
+}
+
+button{
+
+margin:6px;
+padding:10px 14px;
+border:none;
+border-radius:8px;
+background:#4CAF50;
+color:white;
+font-size:14px;
+
+}
+
+button:hover{
+
+background:#66d46c;
+
+}
+
+#output{
+
+margin-top:20px;
+text-align:left;
+white-space:pre-line;
+background:#111;
+padding:15px;
+border-radius:10px;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Minecraft Material Organizer</h1>
+
+<p>Paste Litematica material list</p>
+
+<textarea id="input"></textarea>
+
+<br>
+
+<button onclick="sortAlphabet()">Sort Alphabet</button>
+<button onclick="sortQuantity()">Sort Quantity</button>
+<button onclick="groupBlocks()">Smart Group</button>
+<button onclick="convertStacks()">Stacks</button>
+<button onclick="convertChest()">Double Chest</button>
+
+<div id="output"></div>
+
+<script>
+
+function parseInput(){
+
+let text=document.getElementById("input").value.trim();
+
+let lines=text.split("\n");
+
+let items=[];
+
+lines.forEach(line=>{
+
+let match=line.match(/(.+?)[ :]+(\d+)/);
+
+if(match){
+
+items.push({
+
+name:match[1].trim(),
+
+qty:parseInt(match[2])
+
+});
+
+}
+
+});
+
+return items;
+
+}
+
+function sortAlphabet(){
+
+let items=parseInput();
+
+items.sort((a,b)=>a.name.localeCompare(b.name));
+
+display(items);
+
+}
+
+function sortQuantity(){
+
+let items=parseInput();
+
+items.sort((a,b)=>b.qty-a.qty);
+
+display(items);
+
+}
+
+function groupBlocks(){
+
+let items=parseInput();
+
+let groups={};
+
+items.forEach(item=>{
+
+let key=item.name.split(" ")[0];
+
+if(!groups[key]) groups[key]=[];
+
+groups[key].push(item);
+
+});
+
+let result="";
+
+for(let g in groups){
+
+result+=g+"\n";
+
+groups[g].forEach(i=>{
+
+result+="   "+i.name+" - "+i.qty+"\n";
+
+});
+
+result+="\n";
+
+}
+
+document.getElementById("output").innerText=result;
+
+}
+
+function convertStacks(){
+
+let items=parseInput();
+
+let result="";
+
+items.forEach(i=>{
+
+let stacks=Math.floor(i.qty/64);
+
+let itemsLeft=i.qty%64;
+
+result+=i.name+" → "+stacks+" stacks + "+itemsLeft+" items\n";
+
+});
+
+document.getElementById("output").innerText=result;
+
+}
+
+function convertChest(){
+
+let items=parseInput();
+
+let result="";
+
+items.forEach(i=>{
+
+let chest=Math.floor(i.qty/3456);
+
+let remain=i.qty%3456;
+
+let stacks=Math.floor(remain/64);
+
+let itemsLeft=remain%64;
+
+result+=i.name+"\n";
+
+result+="   "+chest+" Double Chests\n";
+
+result+="   "+stacks+" Stacks\n";
+
+result+="   "+itemsLeft+" Items\n\n";
+
+});
+
+document.getElementById("output").innerText=result;
+
+}
+
+function display(items){
+
+let result="";
+
+items.forEach(i=>{
+
+result+=i.name+" - "+i.qty+"\n";
+
+});
+
+document.getElementById("output").innerText=result;
+
+}
+
+</script>
+
+</body>
+
+</html>
