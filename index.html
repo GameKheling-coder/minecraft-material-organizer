@@ -94,8 +94,11 @@ border-bottom:1px solid #00000020;
 }
 
 .group{
-background:#00000020;
+background:#2f4056;
 font-weight:bold;
+font-size:16px;
+letter-spacing:1px;
+color:#ffffff;
 }
 
 .raw{
@@ -302,10 +305,14 @@ tbody.innerHTML+=`
 </tr>
 `;
 
+let rawText = rawEnabled 
+? ` | <span style="color:#7CFFB2;font-weight:bold;">RAW: ${Math.ceil(rawTotal)}</span>` 
+: "";
+
 tbody.innerHTML+=`
 <tr class="group">
 <td></td>
-<td colspan="4">${g}</td>
+<td colspan="4">${g.toUpperCase()}${rawText}</td>
 </tr>
 `;
 
