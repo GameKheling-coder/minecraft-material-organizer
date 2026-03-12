@@ -196,12 +196,12 @@ game_kheling
 </div>
 
 <!-- Firebase CDN -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+<script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js"></script>
 
+<script>
 // Firebase Config
-const firebaseConfig = {
+var firebaseConfig = {
 apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
 authDomain: "sortkering.firebaseapp.com",
 databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -212,8 +212,8 @@ appId: "1:48916302995:web:61b8946057cd178eeb1166",
 measurementId: "G-R4H12TKSND"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+var app = firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
 
 let currentTeam=null;
 let isHost=false;
@@ -233,7 +233,7 @@ function createTeam(){
 let code=Math.random().toString(36).substring(2,7).toUpperCase();
 currentTeam=code;
 isHost=true;
-set(ref(db,"teams/"+code),{created:Date.now()});
+firebase.database().ref("teams/"+code).set({created:Date.now()});
 document.getElementById("teamStatus").innerText="Team Code: "+code;
 listenUpdates();
 }
@@ -247,7 +247,7 @@ listenUpdates();
 
 function listenUpdates(){
 if(!currentTeam) return;
-onValue(ref(db,"teams/"+currentTeam+"/checks"), snapshot=>{
+firebase.database().ref("teams/"+currentTeam+"/checks").on("value", function(snapshot){
 let data=snapshot.val();
 if(!data) return;
 for(let name in data){
@@ -348,7 +348,7 @@ updateProgress();
 function updateCheck(box,name){
 updateProgress();
 if(!currentTeam) return;
-set(ref(db,"teams/"+currentTeam+"/checks/"+name),box.checked);
+firebase.database().ref("teams/"+currentTeam+"/checks/"+name).set(box.checked);
 }
 
 // Progress bar
@@ -364,7 +364,7 @@ document.getElementById("progressText").innerText="Progress: "+percent+"%";
 
 // Theme
 function toggleTheme(){ document.body.classList.toggle("light"); }
-
 </script>
+
 </body>
 </html>
