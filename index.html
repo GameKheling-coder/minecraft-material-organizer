@@ -2,25 +2,34 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Minecraft Material Organizer</title>
+
+<title>Sort Kering</title>
 
 <style>
 
 body{
-background:linear-gradient(135deg,#1b1b1b,#0f2027);
-color:white;
+background:linear-gradient(135deg,#141e30,#243b55);
 font-family:Arial;
+color:white;
 text-align:center;
 padding:20px;
+}
+
+h1{
+font-size:40px;
+background:linear-gradient(90deg,#ff6a00,#ffcc00,#00ffcc,#00aaff,#ff00ff);
+-webkit-background-clip:text;
+color:transparent;
+font-weight:bold;
 }
 
 textarea{
 width:95%;
 height:160px;
-background:#222;
+background:#1b1b1b;
 color:white;
 border:none;
-border-radius:10px;
+border-radius:12px;
 padding:10px;
 }
 
@@ -38,6 +47,14 @@ button:hover{
 background:#66d46c;
 }
 
+.settings{
+margin-top:20px;
+background:#111;
+padding:15px;
+border-radius:10px;
+text-align:left;
+}
+
 table{
 width:100%;
 margin-top:20px;
@@ -52,39 +69,90 @@ padding:10px;
 border-bottom:1px solid #333;
 }
 
+.group{
+background:#1e1e1e;
+font-weight:bold;
+}
+
+#rawResult{
+margin-top:20px;
+background:#111;
+padding:15px;
+border-radius:10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>Minecraft Material Organizer</h2>
+<h1>Sort Kering</h1>
 
 <textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
 <br>
 
-<button onclick="generateTable()">Generate List</button>
+<button onclick="generate()">Generate Checklist</button>
 <button onclick="exportCSV()">Export Excel</button>
+<button onclick="calculateRaw()">RAW Materials</button>
+
+<div class="settings">
+
+<h3>Settings</h3>
+
+<label>
+<input type="checkbox" id="groupToggle" checked>
+Smart Grouping
+</label>
+
+<br>
+
+<label>
+<input type="checkbox" id="stackToggle" checked>
+Show Stacks
+</label>
+
+<br>
+
+<label>
+<input type="checkbox" id="chestToggle" checked>
+Show Double Chests
+</label>
+
+<br>
+
+<label>
+<input type="checkbox" id="rawToggle" checked>
+Enable RAW Conversion
+</label>
+
+</div>
 
 <table id="table">
+
 <thead>
+
 <tr>
 <th>Done</th>
 <th>Block</th>
-<th>Quantity</th>
+<th>Qty</th>
 <th>Stacks</th>
+<th>Double Chests</th>
 </tr>
+
 </thead>
 
 <tbody></tbody>
 
 </table>
 
+<div id="rawResult"></div>
+
 <script>
 
 let materials=[];
 
-function generateTable(){
+function parseInput(){
 
 let text=document.getElementById("input").value.trim();
 
@@ -99,36 +167,113 @@ let match=line.match(/(.+?)[ :]+(\d+)/);
 if(match){
 
 let name=match[1].trim();
+
 let qty=parseInt(match[2]);
+
+let stacks=Math.floor(qty/64);
+
+let chest=Math.floor(qty/3456);
 
 materials.push({
 name:name,
 qty:qty,
-stacks:Math.floor(qty/64)
+stacks:stacks,
+chest:chest
 });
 
 }
 
 });
 
-renderTable();
+}
+
+function groupName(name){
+
+let woods=[
+"Oak","Spruce","Birch","Jungle","Acacia",
+"Dark Oak","Mangrove","Cherry",
+"Crimson","Warped"
+];
+
+let stones=[
+"Deepslate","Blackstone","Stone",
+"Cobblestone","Andesite","Diorite","Granite"
+];
+
+for(let w of woods){
+
+if(name.startsWith(w)) return w;
 
 }
 
-function renderTable(){
+for(let s of stones){
+
+if(name.includes(s)) return s;
+
+}
+
+return "Other";
+
+}
+
+function generate(){
+
+parseInput();
+
+let useGrouping=document.getElementById("groupToggle").checked;
+
+let groups={};
+
+materials.forEach(m=>{
+
+let g=useGrouping?groupName(m.name):"All";
+
+if(!groups[g]) groups[g]=[];
+
+groups[g].push(m);
+
+});
+
+render(groups);
+
+}
+
+function render(groups){
 
 let tbody=document.querySelector("#table tbody");
 
 tbody.innerHTML="";
 
-materials.forEach((m,i)=>{
+let showStacks=document.getElementById("stackToggle").checked;
+
+let showChest=document.getElementById("chestToggle").checked;
+
+for(let g in groups){
+
+if(g!=="All"){
+
+tbody.innerHTML+=`
+<tr class="group">
+<td></td>
+<td colspan="4">${g}</td>
+</tr>
+`;
+
+}
+
+groups[g].forEach(m=>{
+
+let stacks=showStacks?m.stacks:"-";
+
+let chest=showChest?m.chest:"-";
 
 let row=`
 <tr>
 <td><input type="checkbox"></td>
 <td>${m.name}</td>
 <td>${m.qty}</td>
-<td>${m.stacks}</td>
+<td>${stacks}</td>
+<td>${chest}</td>
 </tr>
 `;
 
@@ -138,12 +283,14 @@ tbody.innerHTML+=row;
 
 }
 
+}
+
 function exportCSV(){
 
-let csv="Block,Quantity,Stacks\n";
+let csv="Block,Quantity,Stacks,DoubleChests\n";
 
 materials.forEach(m=>{
-csv+=`${m.name},${m.qty},${m.stacks}\n`;
+csv+=`${m.name},${m.qty},${m.stacks},${m.chest}\n`;
 });
 
 let blob=new Blob([csv],{type:"text/csv"});
@@ -155,6 +302,71 @@ a.href=URL.createObjectURL(blob);
 a.download="minecraft_materials.csv";
 
 a.click();
+
+}
+
+function calculateRaw(){
+
+let rawEnabled=document.getElementById("rawToggle").checked;
+
+if(!rawEnabled){
+
+document.getElementById("rawResult").innerHTML=
+"RAW feature disabled in settings";
+
+return;
+
+}
+
+parseInput();
+
+let totalLogs=0;
+
+materials.forEach(m=>{
+
+let name=m.name.toLowerCase();
+
+let qty=m.qty;
+
+if(name.includes("slab")){
+
+let planks=(qty/6)*3;
+
+totalLogs+=planks/4;
+
+}
+
+else if(name.includes("stairs")){
+
+let planks=(qty/4)*6;
+
+totalLogs+=planks/4;
+
+}
+
+else if(name.includes("planks")){
+
+totalLogs+=qty/4;
+
+}
+
+else if(name.includes("log")){
+
+totalLogs+=qty;
+
+}
+
+});
+
+totalLogs=Math.ceil(totalLogs);
+
+document.getElementById("rawResult").innerHTML=`
+
+<h3>Raw Material Result</h3>
+
+Total Logs Needed: ${totalLogs}
+
+`;
 
 }
 
