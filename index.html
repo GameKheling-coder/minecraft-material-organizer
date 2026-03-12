@@ -19,7 +19,7 @@ transition:0.3s;
 }
 
 .light{
-background:#f2f6fb;
+background:#f3f6fb;
 color:#111;
 }
 
@@ -34,7 +34,7 @@ color:transparent;
 
 .subtitle{
 text-align:center;
-margin-top:-10px;
+margin-top:-8px;
 margin-bottom:20px;
 font-size:14px;
 opacity:0.8;
@@ -58,6 +58,7 @@ border-radius:8px;
 background:#38bdf8;
 color:white;
 font-weight:600;
+cursor:pointer;
 }
 
 .settings{
@@ -94,6 +95,28 @@ color:#7CFFB2;
 font-weight:700;
 }
 
+#progressContainer{
+width:100%;
+height:18px;
+background:#2d3f55;
+border-radius:10px;
+margin-top:15px;
+overflow:hidden;
+}
+
+#progressBar{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#22c55e,#4ade80);
+transition:0.3s;
+}
+
+#progressText{
+margin-top:5px;
+font-size:13px;
+opacity:0.8;
+}
+
 .footer{
 text-align:center;
 margin-top:40px;
@@ -107,6 +130,7 @@ font-weight:600;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -116,14 +140,21 @@ font-weight:600;
 
 <textarea id="input" placeholder="Paste Litematica list here"></textarea>
 
+<div id="progressContainer">
+<div id="progressBar"></div>
+</div>
+
+<div id="progressText">Progress: 0%</div>
+
 <br>
+
 <button onclick="generate()">Generate List</button>
 
 <div class="settings">
 
 <label>
-<input type="checkbox" id="darkToggle" checked onchange="toggleTheme()">
-Dark Mode
+<input type="checkbox" checked onclick="toggleTheme()">
+Light / Dark Mode
 </label>
 
 <br>
@@ -166,7 +197,7 @@ Enable RAW Calculation
 </table>
 
 <div class="footer">
-Instagram : 
+Instagram :
 <a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">
 game_kheling
 </a>
@@ -264,7 +295,6 @@ let rawTotal=0;
 groups[g].forEach(m=>{
 
 let name=m.name.toLowerCase();
-
 let qty=m.qty;
 
 if(rawEnabled){
@@ -318,7 +348,7 @@ let chest=showChest?m.chest:"-";
 
 tbody.innerHTML+=`
 <tr data-group="${g}">
-<td><input type="checkbox"></td>
+<td><input type="checkbox" onclick="updateProgress()"></td>
 <td>${m.name}</td>
 <td>${m.qty}</td>
 <td>${stacks}</td>
@@ -337,10 +367,30 @@ function toggleGroup(group){
 let rows=document.querySelectorAll(`[data-group="${group}"] input`);
 
 rows.forEach(r=>{
-
 r.checked=!r.checked;
-
 });
+
+updateProgress();
+
+}
+
+function updateProgress(){
+
+let checks=document.querySelectorAll("tbody input[type='checkbox']");
+
+let total=checks.length;
+
+let done=0;
+
+checks.forEach(c=>{
+if(c.checked) done++;
+});
+
+let percent=Math.floor((done/total)*100);
+
+document.getElementById("progressBar").style.width=percent+"%";
+
+document.getElementById("progressText").innerText="Progress: "+percent+"%";
 
 }
 
