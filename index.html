@@ -41,12 +41,23 @@ opacity:0.8;
 .themeToggle{
 position:fixed;
 top:15px;
-right:15px;
+right:70px;
 font-size:22px;
 cursor:pointer;
 background:#253547;
 border-radius:50%;
 padding:8px 10px;
+}
+
+.hostPanel{
+position:fixed;
+top:15px;
+right:15px;
+font-size:14px;
+cursor:default;
+background:#253547;
+border-radius:10px;
+padding:8px 12px;
 }
 
 textarea{
@@ -154,19 +165,29 @@ font-weight:600;
 
 <body>
 
-<div class="themeToggle" onclick="toggleTheme()">🌙</div>
+<div class="hostPanel" id="hostPanel" style="display:none;">
+Host Control
+</div>
+
+<div class="themeToggle" onclick="toggleTheme()">☀️</div>
 
 <h1>Sort Kering</h1>
 <div class="subtitle">by Game Kheling</div>
+
+<!-- Team Code Panel -->
+<div style="margin-bottom:15px">
+  <input id="teamCodeInput" placeholder="Enter team code">
+  <button onclick="createTeam()">Create Team</button>
+  <button onclick="joinTeam()">Join Team</button>
+  <span id="teamStatus"></span>
+</div>
 
 <textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
 <div class="fileRow">
 
 <span class="fileText">Upload .txt file here</span>
-
 <input type="file" id="fileInput" accept=".txt">
-
 <button onclick="generate()">Generate</button>
 
 </div>
@@ -223,213 +244,197 @@ game_kheling
 </a>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+
 <script>
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCR3JVCyjQho1IhKFZLpQxl4PtAR7mB9Og",
+  authDomain: "sortkering.firebaseapp.com",
+  databaseURL: "https://sortkering-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sortkering",
+  storageBucket: "sortkering.firebasestorage.app",
+  messagingSenderId: "48916302995",
+  appId: "1:48916302995:web:61b8946057cd178eeb1166",
+  measurementId: "G-R4H12TKSND"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let currentTeam = null;
+let isHost = false;
 
 let materials=[];
 
+// File upload
 document.getElementById("fileInput").addEventListener("change",function(){
-
 let file=this.files[0];
-
 if(!file) return;
-
 let reader=new FileReader();
-
 reader.onload=function(e){
-
 document.getElementById("input").value=e.target.result;
-
 };
-
 reader.readAsText(file);
-
 });
 
+// Parse input
 function parseInput(){
-
 let text=document.getElementById("input").value.trim();
-
 let lines=text.split("\n");
-
 materials=[];
-
 lines.forEach(line=>{
-
 let match=line.match(/(.+?)[ :]+(\d+)/);
-
 if(match){
-
 let name=match[1].trim();
-
 let qty=parseInt(match[2]);
-
-materials.push({
-name:name,
-qty:qty,
-stacks:Math.floor(qty/64),
-chest:Math.floor(qty/3456)
+materials.push({name:name, qty:qty, stacks:Math.floor(qty/64), chest:Math.floor(qty/3456)});
+}
 });
-
 }
 
-});
-
-}
-
+// Group helper
 function groupName(name){
-
 let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
-
 let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
-
-for(let w of woods){
-if(name.startsWith(w)) return w;
-}
-
-for(let s of stones){
-if(name.includes(s)) return s;
-}
-
+for(let w of woods){ if(name.startsWith(w)) return w; }
+for(let s of stones){ if(name.includes(s)) return s; }
 return "Other";
-
 }
 
+// Generate table
 function generate(){
-
 parseInput();
 
-let groups={};
-
-materials.forEach(m=>{
-
-let g=groupName(m.name);
-
-if(!groups[g]) groups[g]=[];
-
-groups[g].push(m);
-
-});
-
-render(groups);
-
+if(currentTeam && !isHost){
+alert("Only host can change list");
+return;
 }
 
+let groups={};
+materials.forEach(m=>{
+let g=groupName(m.name);
+if(!groups[g]) groups[g]=[];
+groups[g].push(m);
+});
+
+if(currentTeam && isHost){
+let matObj = materials.reduce((obj,m)=>{obj[m.name]=m.qty; return obj;}, {});
+db.ref("teams/"+currentTeam+"/materials").set(matObj);
+}
+
+render(groups);
+}
+
+// Render table
 function render(groups){
-
 let tbody=document.querySelector("#table tbody");
-
 tbody.innerHTML="";
-
 let showStacks=document.getElementById("stackToggle").checked;
-
 let showChest=document.getElementById("chestToggle").checked;
-
 let rawEnabled=document.getElementById("rawToggle").checked;
 
 for(let g in groups){
-
 let rawTotal=0;
-
 groups[g].forEach(m=>{
-
 let name=m.name.toLowerCase();
 let qty=m.qty;
-
 if(rawEnabled){
-
 if(name.includes("slab")){
-
-let planks=(qty/6)*3;
-rawTotal+=planks/4;
-
-}
-
+let planks=(qty/6)*3; rawTotal+=planks/4; }
 else if(name.includes("stairs")){
-
-let planks=(qty/4)*6;
-rawTotal+=planks/4;
-
-}
-
+let planks=(qty/4)*6; rawTotal+=planks/4; }
 else if(name.includes("planks")){
-
 rawTotal+=qty/4;
-
 }
-
 else if(name.includes("log")){
-
 rawTotal+=qty;
-
 }
-
 }
-
 });
 
-tbody.innerHTML+=`
-<tr class="group">
-<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
-<td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
-</tr>
-`;
+tbody.innerHTML+=`<tr class="group"><td><input type="checkbox" onclick="toggleGroup('${g}')"></td><td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td></tr>`;
 
 groups[g].forEach(m=>{
-
 let stacks=showStacks?m.stacks:"-";
 let chest=showChest?m.chest:"-";
-
-tbody.innerHTML+=`
-<tr data-group="${g}">
-<td><input type="checkbox" onclick="updateProgress()"></td>
-<td>${m.name}</td>
-<td>${m.qty}</td>
-<td>${stacks}</td>
-<td>${chest}</td>
-</tr>
-`;
-
+tbody.innerHTML+=`<tr data-group="${g}" data-name="${m.name}"><td><input type="checkbox" onchange="updateCheck(this,'${m.name}')"></td><td>${m.name}</td><td>${m.qty}</td><td>${stacks}</td><td>${chest}</td></tr>`;
 });
-
 }
-
-}
-
-function toggleGroup(group){
-
-let rows=document.querySelectorAll(`[data-group="${group}"] input`);
-
-rows.forEach(r=>{
-r.checked=!r.checked;
-});
 
 updateProgress();
-
 }
 
+// Toggle group
+function toggleGroup(group){
+let rows=document.querySelectorAll(`[data-group="${group}"] input`);
+rows.forEach(r=>{r.checked=!r.checked;});
+updateProgress();
+}
+
+// Update progress
 function updateProgress(){
-
 let checks=document.querySelectorAll("tbody input[type='checkbox']");
+let total=checks.length; let done=0;
+checks.forEach(c=>{if(c.checked) done++;});
+let percent=Math.floor((done/total)*100);
+document.getElementById("progressBar").style.width=percent+"%";
+document.getElementById("progressText").innerText="Progress: "+percent+"%";
+}
 
-let total=checks.length;
+// Theme toggle
+function toggleTheme(){document.body.classList.toggle("light");}
 
-let done=0;
+// Team code functions
+function createTeam(){
+let code=Math.random().toString(36).substring(2,7).toUpperCase();
+currentTeam=code; isHost=true;
+db.ref("teams/"+code).set({created:Date.now(), materials:materials.reduce((o,m)=>{o[m.name]=m.qty;return o;},{}), checks:{}});
+document.getElementById("teamStatus").innerText="Team Code: "+code;
+document.getElementById("hostPanel").style.display="block";
+listenUpdates();
+}
 
-checks.forEach(c=>{
-if(c.checked) done++;
+function joinTeam(){
+let code=document.getElementById("teamCodeInput").value.toUpperCase();
+if(!code) return;
+currentTeam=code; isHost=false;
+document.getElementById("teamStatus").innerText="Joined: "+code;
+document.getElementById("hostPanel").style.display="none";
+listenUpdates();
+}
+
+// Update checkbox in Firebase
+function updateCheck(box,name){
+updateProgress();
+if(!currentTeam) return;
+db.ref("teams/"+currentTeam+"/checks/"+name).set(box.checked);
+}
+
+// Listen updates from Firebase
+function listenUpdates(){
+if(!currentTeam) return;
+
+db.ref("teams/"+currentTeam+"/materials").once("value").then(snap=>{
+if(isHost) return;
+let matData=snap.val();
+if(matData){
+materials.forEach(m=>{ if(matData[m.name]!==undefined) m.qty=matData[m.name]; });
+generate();
+}
 });
 
-let percent=Math.floor((done/total)*100);
-
-document.getElementById("progressBar").style.width=percent+"%";
-
-document.getElementById("progressText").innerText="Progress: "+percent+"%";
-
+db.ref("teams/"+currentTeam+"/checks").on("value",snapshot=>{
+let data=snapshot.val();
+if(!data) return;
+for(let name in data){
+let row=document.querySelector(`[data-name='${name}'] input`);
+if(row) row.checked=data[name];
 }
-
-function toggleTheme(){
-
-document.body.classList.toggle("light");
+updateProgress();
+});
 
 }
 
