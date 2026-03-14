@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>Sort Kering</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
@@ -13,14 +12,14 @@
 
 body{
 font-family:Poppins;
-background:#0f172a;
+background:#1e2a38;
 color:white;
 padding:20px;
 }
 
 h1{
 text-align:center;
-font-size:50px;
+font-size:48px;
 font-weight:900;
 letter-spacing:2px;
 
@@ -42,33 +41,21 @@ margin-top:-10px;
 textarea{
 width:100%;
 height:140px;
-background:#1e293b;
-border:none;
 border-radius:10px;
+border:none;
 padding:10px;
+background:#253547;
 color:white;
 }
 
-.controls{
-margin-top:10px;
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
-
 button{
-background:#38bdf8;
-border:none;
 padding:10px 16px;
+border:none;
 border-radius:8px;
+background:#38bdf8;
+color:white;
 font-weight:700;
 cursor:pointer;
-}
-
-input[type="text"]{
-padding:8px;
-border-radius:6px;
-border:none;
 }
 
 table{
@@ -78,28 +65,47 @@ border-collapse:collapse;
 }
 
 th{
-background:#334155;
+background:#31465f;
 padding:10px;
 }
 
 td{
 padding:10px;
-border-bottom:1px solid rgba(255,255,255,0.08);
+border-bottom:1px solid rgba(255,255,255,0.05);
 }
 
 .group{
-background:#475569;
+background:#3b526e;
 font-weight:700;
 }
 
-.icon{
-width:24px;
-height:24px;
-image-rendering:pixelated;
+.group span{
+color:#7CFFB2;
+}
+
+#progressContainer{
+width:100%;
+height:18px;
+background:#2d3f55;
+border-radius:10px;
+margin-top:15px;
+overflow:hidden;
+}
+
+#progressBar{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#22c55e,#4ade80);
+transition:.3s;
+}
+
+#progressText{
+margin-top:5px;
+font-size:13px;
+opacity:.8;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -109,25 +115,25 @@ image-rendering:pixelated;
 
 <textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
-<div class="controls">
+<br><br>
 
 <input type="file" id="fileInput" accept=".txt">
 
 <button onclick="generate()">Generate</button>
 
-<button onclick="sortByQty()">Sort by Qty</button>
-
 <button onclick="exportExcel()">Export Excel</button>
 
-<input type="text" id="search" placeholder="Search block..." oninput="filterTable()">
-
+<div id="progressContainer">
+<div id="progressBar"></div>
 </div>
+
+<div id="progressText">Progress: 0%</div>
 
 <table id="table">
 
 <thead>
 <tr>
-<th>Icon</th>
+<th>✔</th>
 <th>Block</th>
 <th>Qty</th>
 <th>Stacks</th>
@@ -197,29 +203,38 @@ chest:Math.floor(qty/3456)
 
 }
 
-function groupName(name){
+function baseName(name){
 
-let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak"];
+let removeWords=[
+"Slab","Stairs","Planks","Log","Wood"
+];
 
-let stones=["Stone","Cobblestone","Granite","Diorite","Andesite"];
+let base=name;
 
-for(let w of woods){
-if(name.includes(w)) return "Wood";
-}
+removeWords.forEach(w=>{
+base=base.replace(w,"");
+});
 
-for(let s of stones){
-if(name.includes(s)) return "Stone";
-}
-
-return "Miscellaneous";
+return base.trim();
 
 }
 
-function iconURL(name){
+function groupItems(){
 
-let file=name.toLowerCase().replace(/ /g,"_");
+let groups={};
 
-return `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20/items/${file}.png`;
+materials.forEach(m=>{
+
+let base=baseName(m.name);
+
+if(!groups[base])
+groups[base]=[];
+
+groups[base].push(m);
+
+});
+
+return groups;
 
 }
 
@@ -227,17 +242,7 @@ function generate(){
 
 parseInput();
 
-let groups={};
-
-materials.forEach(m=>{
-
-let g=groupName(m.name);
-
-if(!groups[g]) groups[g]=[];
-
-groups[g].push(m);
-
-});
+let groups=groupItems();
 
 render(groups);
 
@@ -249,23 +254,47 @@ let tbody=document.querySelector("#table tbody");
 
 tbody.innerHTML="";
 
-let order=["Wood","Stone","Miscellaneous"];
+for(let g in groups){
 
-order.forEach(g=>{
+let rawTotal=0;
 
-if(!groups[g]) return;
+groups[g].forEach(m=>{
+
+let name=m.name.toLowerCase();
+let qty=m.qty;
+
+if(name.includes("slab")){
+let planks=(qty/6)*3;
+rawTotal+=planks/4;
+}
+
+else if(name.includes("stairs")){
+let planks=(qty/4)*6;
+rawTotal+=planks/4;
+}
+
+else if(name.includes("planks")){
+rawTotal+=qty/4;
+}
+
+else if(name.includes("log")){
+rawTotal+=qty;
+}
+
+});
 
 tbody.innerHTML+=`
 <tr class="group">
-<td colspan="5">${g}</td>
+<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
+<td colspan="4">${g} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
 </tr>
 `;
 
 groups[g].forEach(m=>{
 
 tbody.innerHTML+=`
-<tr>
-<td><img class="icon" src="${iconURL(m.name)}"></td>
+<tr data-group="${g}">
+<td><input type="checkbox" onclick="updateProgress()"></td>
 <td>${m.name}</td>
 <td>${m.qty}</td>
 <td>${m.stacks}</td>
@@ -275,36 +304,39 @@ tbody.innerHTML+=`
 
 });
 
-});
+}
 
 }
 
-function sortByQty(){
+function toggleGroup(group){
 
-materials.sort((a,b)=>b.qty-a.qty);
-
-let groups={"All":materials};
-
-render(groups);
-
-}
-
-function filterTable(){
-
-let input=document.getElementById("search").value.toLowerCase();
-
-let rows=document.querySelectorAll("#table tbody tr");
+let rows=document.querySelectorAll(`[data-group="${group}"] input`);
 
 rows.forEach(r=>{
-
-let text=r.innerText.toLowerCase();
-
-if(text.includes(input))
-r.style.display="";
-else
-r.style.display="none";
-
+r.checked=!r.checked;
 });
+
+updateProgress();
+
+}
+
+function updateProgress(){
+
+let checks=document.querySelectorAll("tbody input[type='checkbox']");
+
+let total=checks.length;
+
+let done=0;
+
+checks.forEach(c=>{
+if(c.checked) done++;
+});
+
+let percent=Math.floor((done/total)*100);
+
+document.getElementById("progressBar").style.width=percent+"%";
+
+document.getElementById("progressText").innerText="Progress: "+percent+"%";
 
 }
 
