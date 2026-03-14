@@ -2,115 +2,73 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Sort Kering</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
 
-<!-- SheetJS Library for Excel Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+
 body{
 font-family:Poppins;
-background:#1e2a38;
+background:#0f172a;
 color:white;
 padding:20px;
-transition:0.3s;
-}
-
-.light{
-background:#f4f7fb;
-color:#111;
 }
 
 h1{
 text-align:center;
-font-size:40px;
-font-weight:800;
-background:linear-gradient(90deg,#ff7a18,#32d2aa,#5aa9ff);
+font-size:50px;
+font-weight:900;
+letter-spacing:2px;
+
+background:linear-gradient(90deg,#ff3c00,#ff9f00,#00ffd5,#00a2ff,#9d00ff);
 -webkit-background-clip:text;
 color:transparent;
+
+text-shadow:
+0 0 10px rgba(255,255,255,0.3),
+0 0 20px rgba(0,255,200,0.4);
 }
 
 .subtitle{
 text-align:center;
-margin-top:-8px;
-margin-bottom:15px;
-font-size:13px;
-opacity:0.8;
-}
-
-.themeToggle{
-position:fixed;
-top:15px;
-right:15px;
-font-size:22px;
-cursor:pointer;
-background:#253547;
-border-radius:50%;
-padding:8px 10px;
+opacity:.7;
+margin-top:-10px;
 }
 
 textarea{
 width:100%;
-height:130px;
-border-radius:10px;
+height:140px;
+background:#1e293b;
 border:none;
+border-radius:10px;
 padding:10px;
-background:#253547;
 color:white;
 }
 
-.fileRow{
+.controls{
 margin-top:10px;
 display:flex;
-align-items:center;
 gap:10px;
 flex-wrap:wrap;
 }
 
-.fileText{
-font-size:13px;
-opacity:0.8;
-}
-
 button{
-padding:10px 15px;
-border:none;
-border-radius:8px;
 background:#38bdf8;
-color:white;
-font-weight:600;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+font-weight:700;
 cursor:pointer;
 }
 
-#progressContainer{
-width:100%;
-height:18px;
-background:#2d3f55;
-border-radius:10px;
-margin-top:15px;
-overflow:hidden;
-}
-
-#progressBar{
-width:0%;
-height:100%;
-background:linear-gradient(90deg,#22c55e,#4ade80);
-transition:0.3s;
-}
-
-#progressText{
-margin-top:5px;
-font-size:13px;
-opacity:0.8;
-}
-
-.settings{
-margin-top:20px;
-padding:15px;
-border-radius:10px;
-background:#253547;
+input[type="text"]{
+padding:8px;
+border-radius:6px;
+border:none;
 }
 
 table{
@@ -120,85 +78,48 @@ border-collapse:collapse;
 }
 
 th{
-background:#31465f;
+background:#334155;
 padding:10px;
 }
 
 td{
 padding:10px;
-border-bottom:1px solid rgba(255,255,255,0.05);
+border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
 .group{
-background:#3b526e;
+background:#475569;
 font-weight:700;
 }
 
-.group span{
-color:#7CFFB2;
-font-weight:700;
+.icon{
+width:24px;
+height:24px;
+image-rendering:pixelated;
 }
 
-.footer{
-text-align:center;
-margin-top:40px;
-font-size:14px;
-}
-
-.footer a{
-color:#38bdf8;
-text-decoration:none;
-font-weight:600;
-}
 </style>
+
 </head>
 
 <body>
-
-<div class="themeToggle" onclick="toggleTheme()">🌙</div>
 
 <h1>Sort Kering</h1>
 <div class="subtitle">by Game Kheling</div>
 
 <textarea id="input" placeholder="Paste Litematica material list"></textarea>
 
-<div class="fileRow">
-
-<span class="fileText">Upload .txt file here</span>
+<div class="controls">
 
 <input type="file" id="fileInput" accept=".txt">
 
 <button onclick="generate()">Generate</button>
-<button onclick="exportToExcel()">Export to Excel</button>
 
-</div>
+<button onclick="sortByQty()">Sort by Qty</button>
 
-<div id="progressContainer">
-<div id="progressBar"></div>
-</div>
+<button onclick="exportExcel()">Export Excel</button>
 
-<div id="progressText">Progress: 0%</div>
-
-<div class="settings">
-
-<label>
-<input type="checkbox" id="stackToggle" checked onchange="generate()">
-Show Stacks
-</label>
-
-<br>
-
-<label>
-<input type="checkbox" id="chestToggle" checked onchange="generate()">
-Show Double Chests
-</label>
-
-<br>
-
-<label>
-<input type="checkbox" id="rawToggle" checked onchange="generate()">
-Enable RAW Calculator
-</label>
+<input type="text" id="search" placeholder="Search block..." oninput="filterTable()">
 
 </div>
 
@@ -206,7 +127,7 @@ Enable RAW Calculator
 
 <thead>
 <tr>
-<th>✔</th>
+<th>Icon</th>
 <th>Block</th>
 <th>Qty</th>
 <th>Stacks</th>
@@ -218,175 +139,185 @@ Enable RAW Calculator
 
 </table>
 
-<div class="footer">
-Instagram :
-<a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">
-game_kheling
-</a>
-</div>
-
 <script>
 
 let materials=[];
 
 document.getElementById("fileInput").addEventListener("change",function(){
-    let file=this.files[0];
-    if(!file) return;
-    let reader=new FileReader();
-    reader.onload=function(e){
-        document.getElementById("input").value=e.target.result;
-    };
-    reader.readAsText(file);
+
+let file=this.files[0];
+let reader=new FileReader();
+
+reader.onload=function(e){
+document.getElementById("input").value=e.target.result;
+};
+
+reader.readAsText(file);
+
 });
 
 function parseInput(){
-    let text=document.getElementById("input").value.trim();
-    let lines=text.split("\n");
-    materials=[];
-    lines.forEach(line=>{
-        let match=line.match(/(.+?)[ :]+(\d+)/);
-        if(match){
-            let name=match[1].trim();
-            let qty=parseInt(match[2]);
-            materials.push({
-                name:name,
-                qty:qty,
-                stacks:Math.floor(qty/64),
-                chest:Math.floor(qty/3456)
-            });
-        }
-    });
+
+let text=document.getElementById("input").value;
+
+let lines=text.split("\n");
+
+materials=[];
+
+lines.forEach(line=>{
+
+line=line.trim();
+
+if(
+line.startsWith("+") ||
+line.startsWith("| Item") ||
+line.includes("Material List") ||
+line.includes("Missing")
+){
+return;
+}
+
+let match=line.match(/\|\s(.+?)\s+\|\s+(\d+)/);
+
+if(match){
+
+let name=match[1].trim();
+let qty=parseInt(match[2]);
+
+materials.push({
+name:name,
+qty:qty,
+stacks:Math.floor(qty/64),
+chest:Math.floor(qty/3456)
+});
+
+}
+
+});
+
 }
 
 function groupName(name){
-    let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry"];
-    let stones=["Stone","Cobblestone","Granite","Diorite","Andesite","Blackstone","Deepslate"];
-    for(let w of woods){
-        if(name.startsWith(w)) return w;
-    }
-    for(let s of stones){
-        if(name.includes(s)) return s;
-    }
-    return "Other";
+
+let woods=["Oak","Spruce","Birch","Jungle","Acacia","Dark Oak"];
+
+let stones=["Stone","Cobblestone","Granite","Diorite","Andesite"];
+
+for(let w of woods){
+if(name.includes(w)) return "Wood";
+}
+
+for(let s of stones){
+if(name.includes(s)) return "Stone";
+}
+
+return "Miscellaneous";
+
+}
+
+function iconURL(name){
+
+let file=name.toLowerCase().replace(/ /g,"_");
+
+return `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20/items/${file}.png`;
+
 }
 
 function generate(){
-    parseInput();
-    let groups={};
-    materials.forEach(m=>{
-        let g=groupName(m.name);
-        if(!groups[g]) groups[g]=[];
-        groups[g].push(m);
-    });
-    render(groups);
+
+parseInput();
+
+let groups={};
+
+materials.forEach(m=>{
+
+let g=groupName(m.name);
+
+if(!groups[g]) groups[g]=[];
+
+groups[g].push(m);
+
+});
+
+render(groups);
+
 }
 
 function render(groups){
-    let tbody=document.querySelector("#table tbody");
-    tbody.innerHTML="";
-    let showStacks=document.getElementById("stackToggle").checked;
-    let showChest=document.getElementById("chestToggle").checked;
-    let rawEnabled=document.getElementById("rawToggle").checked;
 
-    for(let g in groups){
-        let rawTotal=0;
-        groups[g].forEach(m=>{
-            let name=m.name.toLowerCase();
-            let qty=m.qty;
-            if(rawEnabled){
-                if(name.includes("slab")){
-                    let planks=(qty/6)*3;
-                    rawTotal+=planks/4;
-                }
-                else if(name.includes("stairs")){
-                    let planks=(qty/4)*6;
-                    rawTotal+=planks/4;
-                }
-                else if(name.includes("planks")){
-                    rawTotal+=qty/4;
-                }
-                else if(name.includes("log")){
-                    rawTotal+=qty;
-                }
-            }
-        });
+let tbody=document.querySelector("#table tbody");
 
-        tbody.innerHTML+=`
+tbody.innerHTML="";
+
+let order=["Wood","Stone","Miscellaneous"];
+
+order.forEach(g=>{
+
+if(!groups[g]) return;
+
+tbody.innerHTML+=`
 <tr class="group">
-<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
-<td colspan="4">${g.toUpperCase()} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
+<td colspan="5">${g}</td>
 </tr>
 `;
 
-        groups[g].forEach(m=>{
-            let stacks=showStacks?m.stacks:"-";
-            let chest=showChest?m.chest:"-";
+groups[g].forEach(m=>{
 
-            tbody.innerHTML+=`
-<tr data-group="${g}">
-<td><input type="checkbox" onclick="updateProgress()"></td>
+tbody.innerHTML+=`
+<tr>
+<td><img class="icon" src="${iconURL(m.name)}"></td>
 <td>${m.name}</td>
 <td>${m.qty}</td>
-<td>${stacks}</td>
-<td>${chest}</td>
+<td>${m.stacks}</td>
+<td>${m.chest}</td>
 </tr>
 `;
-        });
-    }
+
+});
+
+});
+
 }
 
-function toggleGroup(group){
-    let rows=document.querySelectorAll(`[data-group="${group}"] input`);
-    rows.forEach(r=>{
-        r.checked=!r.checked;
-    });
-    updateProgress();
+function sortByQty(){
+
+materials.sort((a,b)=>b.qty-a.qty);
+
+let groups={"All":materials};
+
+render(groups);
+
 }
 
-function updateProgress(){
-    let checks=document.querySelectorAll("tbody input[type='checkbox']");
-    let total=checks.length;
-    let done=0;
-    checks.forEach(c=>{
-        if(c.checked) done++;
-    });
-    let percent=Math.floor((done/total)*100);
-    document.getElementById("progressBar").style.width=percent+"%";
-    document.getElementById("progressText").innerText="Progress: "+percent+"%";
+function filterTable(){
+
+let input=document.getElementById("search").value.toLowerCase();
+
+let rows=document.querySelectorAll("#table tbody tr");
+
+rows.forEach(r=>{
+
+let text=r.innerText.toLowerCase();
+
+if(text.includes(input))
+r.style.display="";
+else
+r.style.display="none";
+
+});
+
 }
 
-function toggleTheme(){
-    document.body.classList.toggle("light");
+function exportExcel(){
+
+let table=document.getElementById("table");
+
+let wb=XLSX.utils.table_to_book(table,{sheet:"Materials"});
+
+XLSX.writeFile(wb,"SortKeringMaterials.xlsx");
+
 }
 
-// ✅ Excel Export Function
-function exportToExcel() {
-    let table = document.getElementById("table");
-    let wb = XLSX.utils.book_new();
-    wb.Props = {
-        Title: "Sort Kering Materials",
-        Subject: "Minecraft",
-        Author: "Game Kheling",
-        CreatedDate: new Date()
-    };
-
-    let ws_data = [];
-    let rows = table.querySelectorAll("tr");
-
-    rows.forEach(row => {
-        let rowData = [];
-        let cells = row.querySelectorAll("th, td");
-        cells.forEach(cell => {
-            rowData.push(cell.innerText);
-        });
-        ws_data.push(rowData);
-    });
-
-    let ws = XLSX.utils.aoa_to_sheet(ws_data);
-    XLSX.utils.book_append_sheet(wb, ws, "Materials");
-
-    XLSX.writeFile(wb, "SortKering_Materials.xlsx");
-}
 </script>
 
 </body>
