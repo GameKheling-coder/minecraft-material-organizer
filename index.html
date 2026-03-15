@@ -1,233 +1,195 @@
 <!DOCTYPE html><html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Litematica Sort Kering</title>
+<title>Litematica Sort Kering Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{font-family:Poppins;background:#0f172a;color:#e2e8f0;padding:20px}h1{ text-align:center; font-size:50px; font-weight:900; letter-spacing:2px; color:#38bdf8; text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000; }
-
+body{font-family:Poppins;background:#0f172a;color:#e2e8f0;padding:20px}
+h1{ text-align:center; font-size:50px; font-weight:900; letter-spacing:2px; color:#38bdf8; text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000; }
 .subtitle{text-align:center;margin-top:-10px;opacity:.85}
-
-textarea{width:100%;height:140px;border:none;border-radius:10px;background:#1e293b;color:white;padding:10px}
-
-.controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
-
+textarea{width:100%;height:140px;border:none;border-radius:10px;background:#1e293b;color:white;padding:10px;box-sizing:border-box}
+.controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 button{background:#22c55e;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;color:white}
-
-select{padding:8px;border-radius:6px;border:none}
-
-table{width:100%;margin-top:20px;border-collapse:collapse}
-
-th{background:#334155;padding:10px}
-
+select{padding:8px;border-radius:6px;border:none;background:#334155;color:white}
+table{width:100%;margin-top:20px;border-collapse:collapse;min-width:600px}
+th{background:#334155;padding:12px;text-align:left}
 td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
-
-.group{background:#1e3a5f;font-weight:700} .group span{color:#4ade80}
-
-#progressContainer{width:100%;height:18px;background:#1e293b;border-radius:10px;margin-top:15px;overflow:hidden} #progressBar{width:0%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:.3s} #progressText{margin-top:5px;font-size:13px;opacity:.8}
-
-footer{margin-top:40px;text-align:center;font-size:14px;opacity:.85} footer a{color:#38bdf8;text-decoration:none;font-weight:700} footer a:hover{text-decoration:underline} </style>
-
+.group{background:#1e3a5f;font-weight:700} .group span{color:#4ade80;font-size:0.9em;margin-left:10px}
+#progressContainer{width:100%;height:18px;background:#1e293b;border-radius:10px;margin-top:15px;overflow:hidden} 
+#progressBar{width:0%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:.3s} 
+#progressText{margin-top:5px;font-size:13px;opacity:.8}
+footer{margin-top:40px;text-align:center;font-size:14px;opacity:.85} 
+footer a{color:#38bdf8;text-decoration:none;font-weight:700}
+</style>
 </head>
-<body><h1>Litematica Sort Kering</h1>
-<div class="subtitle">by Game_Kheling</div><textarea id="input" placeholder="Paste Litematica material list"></textarea><div class="controls">
+<body>
+
+<h1>Litematica Sort Kering</h1>
+<div class="subtitle">by Game_Kheling | v2.0 Recipe Corrected</div>
+
+<textarea id="input" placeholder="Paste Litematica material list here..."></textarea>
+
+<div class="controls">
 <input type="file" id="fileInput" accept=".txt">
 <button onclick="generate()">Generate</button>
-<button onclick="exportExcel()">Export Excel</button><select id="sortSelect" onchange="generate()">
-<option value="none">Sort</option>
-<option value="az">Alphabetical A → Z</option>
-<option value="za">Alphabetical Z → A</option>
-<option value="low">Qty Low → High</option>
-<option value="high">Qty High → Low</option>
-</select><label>
-<input type="checkbox" id="rawToggle" checked onchange="generate()"> RAW Calculator
-</label>
-</div><div id="progressContainer"><div id="progressBar"></div></div>
-<div id="progressText">Progress: 0%</div><table id="table">
+<button onclick="exportExcel()">Export Excel</button>
+<select id="sortSelect" onchange="generate()">
+<option value="none">Sort By</option>
+<option value="az">A → Z</option>
+<option value="za">Z → A</option>
+<option value="high">Qty: High to Low</option>
+</select>
+<label><input type="checkbox" id="rawToggle" checked onchange="generate()"> RAW Wood Mode</label>
+</div>
+
+<div id="progressContainer"><div id="progressBar"></div></div>
+<div id="progressText">Progress: 0%</div>
+
+<table id="table">
 <thead>
 <tr>
 <th>✔</th>
-<th>Block</th>
-<th>Qty</th>
-<th>Stacks</th>
-<th>Double Chest</th>
+<th>Block Name</th>
+<th>Total Qty</th>
+<th>Stacks + Items</th>
+<th>Shulkers</th>
+<th>D. Chest</th>
 </tr>
 </thead>
 <tbody></tbody>
-</table><script>
+</table>
+
+<script>
 let materials=[]
+/* Order is crucial to avoid mixing 'Oak' with 'Dark Oak' */
+const materialGroups=["Dark Oak","Oak","Spruce","Birch","Jungle","Acacia","Mangrove","Cherry","Bamboo","Cobblestone","Blackstone","Sandstone","Deepslate","End Stone","Stone"]
 
-/* SMART MATERIAL GROUP LIST */
-const materialGroups=[
-"Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry","Bamboo",
-"Stone","Cobblestone","Deepslate","Blackstone","Sandstone"
-]
-
-/* FILE IMPORT */
 document.getElementById("fileInput").addEventListener("change",function(){
-let file=this.files[0]
-let reader=new FileReader()
-reader.onload=function(e){document.getElementById("input").value=e.target.result}
-reader.readAsText(file)
-})
+    let file=this.files[0];
+    let reader=new FileReader();
+    reader.onload=function(e){document.getElementById("input").value=e.target.result};
+    reader.readAsText(file);
+});
 
-/* DETECT GROUP */
 function detectGroup(name){
-let lower=name.toLowerCase()
-
-for(let g of materialGroups){
-if(lower.includes(g.toLowerCase())) return g
+    let lower=name.toLowerCase();
+    for(let g of materialGroups){ if(lower.includes(g.toLowerCase())) return g; }
+    return "Miscellaneous";
 }
 
-return "Miscellaneous"
-}
-
-/* PARSE LITEMATICA LIST */
 function parseInput(){
-let text=document.getElementById("input").value
-let lines=text.split("\n")
-materials=[]
+    let text=document.getElementById("input").value;
+    let lines=text.split("\n");
+    materials=[];
 
-lines.forEach(line=>{
-line=line.trim()
+    lines.forEach(line=>{
+        line=line.trim();
+        if(line.startsWith("+")||line.startsWith("| Item")||line.includes("Material List")) return;
 
-if(line.startsWith("+")||line.startsWith("| Item")||line.includes("Material List")||line.includes("Missing")) return
+        let match=line.match(/\|\s*(.*?)\s*\|\s*(\d+)/);
+        if(match){
+            let name=match[1].trim();
+            let qty=parseInt(match[2]);
+            let st = Math.floor(qty/64);
+            let rem = qty % 64;
 
-let match=line.match(/\|\s(.+?)\s+\|\s+(\d+)/)
-
-if(match){
-let name=match[1].trim()
-let qty=parseInt(match[2])
-
-materials.push({
-name:name,
-qty:qty,
-stacks:Math.floor(qty/64),
-chest:Math.floor(qty/3456)
-})
-}
-})
-}
-
-/* GROUP ITEMS */
-function groupItems(){
-let groups={}
-
-materials.forEach(m=>{
-let g=detectGroup(m.name)
-if(!groups[g]) groups[g]=[]
-groups[g].push(m)
-})
-
-return groups
+            materials.push({
+                name:name,
+                qty:qty,
+                stackDisplay: st > 0 ? `${st}st + ${rem}` : `${rem}`,
+                shulkers: (qty/1728).toFixed(1),
+                chest: (qty/3456).toFixed(1)
+            });
+        }
+    });
 }
 
-/* SORT */
-function sortItems(arr){
-let mode=document.getElementById("sortSelect").value
-if(mode=="az") arr.sort((a,b)=>a.name.localeCompare(b.name))
-if(mode=="za") arr.sort((a,b)=>b.name.localeCompare(a.name))
-if(mode=="low") arr.sort((a,b)=>a.qty-b.qty)
-if(mode=="high") arr.sort((a,b)=>b.qty-a.qty)
-}
-
-/* GENERATE */
-function generate(){
-parseInput()
-let groups=groupItems()
-render(groups)
-}
-
-/* RENDER TABLE */
 function render(groups){
-let tbody=document.querySelector("#table tbody")
-tbody.innerHTML=""
-let rawEnabled=document.getElementById("rawToggle").checked
+    let tbody=document.querySelector("#table tbody");
+    tbody.innerHTML="";
+    let rawEnabled=document.getElementById("rawToggle").checked;
 
-/* ORDER GROUPS WITH MISC LAST */
-let keys=Object.keys(groups).sort()
-if(keys.includes("Miscellaneous")){
-keys=keys.filter(k=>k!=="Miscellaneous")
-keys.push("Miscellaneous")
+    let keys=Object.keys(groups).sort();
+    if(keys.includes("Miscellaneous")){
+        keys=keys.filter(k=>k!=="Miscellaneous");
+        keys.push("Miscellaneous");
+    }
+
+    keys.forEach(g=>{
+        let arr=groups[g];
+        let mode=document.getElementById("sortSelect").value;
+        if(mode=="az") arr.sort((a,b)=>a.name.localeCompare(b.name));
+        if(mode=="za") arr.sort((a,b)=>b.name.localeCompare(a.name));
+        if(mode=="high") arr.sort((a,b)=>b.qty-a.qty);
+
+        let totalPlanksNeeded = 0;
+        let isBamboo = (g === "Bamboo");
+
+        arr.forEach(m=>{
+            let name=m.name.toLowerCase();
+            let qty=m.qty;
+
+            if(rawEnabled){
+                // Plank conversion logic based on real MC recipes
+                if(name.includes("slab")) totalPlanksNeeded += (qty * 0.5);
+                else if(name.includes("stairs")) totalPlanksNeeded += (qty * 1.5);
+                else if(name.includes("trapdoor")) totalPlanksNeeded += (qty * 3);
+                else if(name.includes("fence_gate")) totalPlanksNeeded += (qty * 4); // 4 sticks + 2 planks = approx 4 planks
+                else if(name.includes("fence")) totalPlanksNeeded += (qty * 1.33);
+                else if(name.includes("door") || name.includes("sign")) totalPlanksNeeded += (qty * 2);
+                else if(name.includes("pressure_plate")) totalPlanksNeeded += (qty * 2);
+                else if(name.includes("button")) totalPlanksNeeded += (qty * 1);
+                else if(name.includes("planks")) totalPlanksNeeded += qty;
+                else if(name.includes("log") || name.includes("wood") || name.includes("stem") || name.includes("hyphae") || name.includes("block of bamboo")) {
+                    // Logs will be added separately or converted to planks first
+                    // We'll treat logs as already "ready" materials
+                }
+            }
+        });
+
+        // Convert total planks back to RAW logs
+        // Bamboo: 1 Block = 2 Planks | Others: 1 Log = 4 Planks
+        let divisor = isBamboo ? 2 : 4;
+        let rawLogs = Math.ceil(totalPlanksNeeded / divisor);
+
+        // Also add direct logs/blocks that are already in the list
+        arr.forEach(m=>{
+            let name=m.name.toLowerCase();
+            if(name.includes("log") || name.includes("wood") || name.includes("stem") || name.includes("hyphae") || name.includes("block of bamboo")) {
+                rawLogs += m.qty;
+            }
+        });
+
+        tbody.innerHTML+=`<tr class="group">
+            <td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
+            <td colspan="5">${g} ${rawEnabled && rawLogs > 0 ? `<span>(Req: ≈${rawLogs} ${isBamboo ? 'Bamboo Blocks' : 'Logs'})</span>` : ''}</td>
+        </tr>`;
+
+        arr.forEach(m=>{
+            tbody.innerHTML+=`<tr data-group="${g}">
+                <td><input type="checkbox" onclick="updateProgress()"></td>
+                <td>${m.name}</td>
+                <td><b>${m.qty}</b></td>
+                <td>${m.stackDisplay}</td>
+                <td>${m.shulkers}</td>
+                <td>${m.chest}</td>
+            </tr>`;
+        });
+    });
 }
 
-keys.forEach(g=>{
-let arr=groups[g]
-
-sortItems(arr)
-
-let rawTotal=0
-
-if(rawEnabled){
-arr.forEach(m=>{
-let name=m.name.toLowerCase()
-let qty=m.qty
-
-if(name.includes("slab")){
-let planks=(qty/6)*3
-rawTotal+=planks/4
-}
-else if(name.includes("stairs")){
-let planks=(qty/4)*6
-rawTotal+=planks/4
-}
-else if(name.includes("planks")) rawTotal+=qty/4
-else if(name.includes("log")) rawTotal+=qty
-})
-}
-
-/* GROUP HEADER */
-tbody.innerHTML+=`
-<tr class="group">
-<td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
-<td colspan="4">${g} | <span>RAW: ${Math.ceil(rawTotal)}</span></td>
-</tr>
-`
-
-/* ITEMS */
-arr.forEach(m=>{
-tbody.innerHTML+=`
-<tr data-group="${g}">
-<td><input type="checkbox" onclick="updateProgress()"></td>
-<td>${m.name}</td>
-<td>${m.qty}</td>
-<td>${m.stacks}</td>
-<td>${m.chest}</td>
-</tr>`
-})
-
-})
-}
-
-/* GROUP CHECK */
-function toggleGroup(group){
-let rows=document.querySelectorAll(`[data-group="${group}"] input`)
-rows.forEach(r=>{r.checked=!r.checked})
-updateProgress()
-}
-
-/* PROGRESS */
+function generate(){ parseInput(); let groups={}; materials.forEach(m=>{ let g=detectGroup(m.name); if(!groups[g]) groups[g]=[]; groups[g].push(m); }); render(groups); }
+function toggleGroup(g){ document.querySelectorAll(`[data-group="${g}"] input`).forEach(r=>{r.checked=!r.checked}); updateProgress(); }
 function updateProgress(){
-let checks=document.querySelectorAll("tbody input[type='checkbox']")
-let total=checks.length
-let done=0
-
-checks.forEach(c=>{if(c.checked) done++})
-
-let percent=Math.floor((done/total)*100)
-
-document.getElementById("progressBar").style.width=percent+"%"
-document.getElementById("progressText").innerText="Progress: "+percent+"%"
+    let checks=document.querySelectorAll("tbody input[type='checkbox']");
+    let done=Array.from(checks).filter(c=>c.checked).length;
+    let percent=checks.length > 0 ? Math.floor((done/checks.length)*100) : 0;
+    document.getElementById("progressBar").style.width=percent+"%";
+    document.getElementById("progressText").innerText="Progress: "+percent+"%";
 }
+function exportExcel(){ let table=document.getElementById("table"); let wb=XLSX.utils.table_to_book(table); XLSX.writeFile(wb,"Litematica_Material_List.xlsx"); }
+</script>
 
-/* EXPORT EXCEL */
-function exportExcel(){
-let table=document.getElementById("table")
-let wb=XLSX.utils.table_to_book(table,{sheet:"Materials"})
-XLSX.writeFile(wb,"LitematicaMaterials.xlsx")
-}
-</script><footer>
-Social media: <a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">Instagram @game_kheling</a>
-</footer></body>
-</html>
+<footer>Social media: <a href="https://www.instagram.com/game_kheling" target="_blank">Instagram @game_kheling</a></footer>
+</body></html>
