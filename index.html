@@ -5,9 +5,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-body{font-family:Poppins;background:#0f172a;color:#e2e8f0;padding:20px}/* TITLE STYLE (no glow, black outline) */ h1{ text-align:center; font-size:50px; font-weight:900; letter-spacing:2px; color:#38bdf8; text-shadow: -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000; }
+body{font-family:Poppins;background:#0f172a;color:#e2e8f0;padding:20px}h1{ text-align:center; font-size:50px; font-weight:900; letter-spacing:2px; color:#38bdf8; text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000; }
 
-.subtitle{text-align:center;margin-top:-10px;opacity:.8}
+.subtitle{text-align:center;margin-top:-10px;opacity:.85}
 
 textarea{width:100%;height:140px;border:none;border-radius:10px;background:#1e293b;color:white;padding:10px}
 
@@ -23,38 +23,27 @@ th{background:#334155;padding:10px}
 
 td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
 
-.group{background:#1e3a5f;font-weight:700}
+.group{background:#1e3a5f;font-weight:700} .group span{color:#4ade80}
 
-.group span{color:#4ade80}
+#progressContainer{width:100%;height:18px;background:#1e293b;border-radius:10px;margin-top:15px;overflow:hidden} #progressBar{width:0%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:.3s} #progressText{margin-top:5px;font-size:13px;opacity:.8}
 
-#progressContainer{width:100%;height:18px;background:#1e293b;border-radius:10px;margin-top:15px;overflow:hidden}
-
-#progressBar{width:0%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:.3s}
-
-#progressText{margin-top:5px;font-size:13px;opacity:.8}
-
-footer{ margin-top:40px; text-align:center; font-size:14px; opacity:.8; }
-
-footer a{ color:#38bdf8; text-decoration:none; font-weight:700; }
-
-footer a:hover{ text-decoration:underline } </style>
+footer{margin-top:40px;text-align:center;font-size:14px;opacity:.85} footer a{color:#38bdf8;text-decoration:none;font-weight:700} footer a:hover{text-decoration:underline} </style>
 
 </head>
 <body><h1>Litematica Sort Kering</h1>
-<div class="subtitle">by Game_Kheling</div><textarea id="input" placeholder="Paste Litematica material list"></textarea><div class="controls"><input type="file" id="fileInput" accept=".txt"><button onclick="generate()">Generate</button>
-
-<button onclick="exportExcel()">Export Excel</button>
-
-<select id="sortSelect" onchange="generate()">
+<div class="subtitle">by Game_Kheling</div><textarea id="input" placeholder="Paste Litematica material list"></textarea><div class="controls">
+<input type="file" id="fileInput" accept=".txt">
+<button onclick="generate()">Generate</button>
+<button onclick="exportExcel()">Export Excel</button><select id="sortSelect" onchange="generate()">
 <option value="none">Sort</option>
 <option value="az">Alphabetical A → Z</option>
 <option value="za">Alphabetical Z → A</option>
 <option value="low">Qty Low → High</option>
 <option value="high">Qty High → Low</option>
 </select><label>
-<input type="checkbox" id="rawToggle" checked onchange="generate()">
-RAW Calculator
-</label></div><div id="progressContainer"><div id="progressBar"></div></div>
+<input type="checkbox" id="rawToggle" checked onchange="generate()"> RAW Calculator
+</label>
+</div><div id="progressContainer"><div id="progressBar"></div></div>
 <div id="progressText">Progress: 0%</div><table id="table">
 <thead>
 <tr>
@@ -67,14 +56,13 @@ RAW Calculator
 </thead>
 <tbody></tbody>
 </table><script>
-
 let materials=[]
 
-/* MATERIAL FAMILY GROUPS */
+/* SMART MATERIAL GROUP LIST */
 const materialGroups=[
 "Oak","Spruce","Birch","Jungle","Acacia","Dark Oak","Mangrove","Cherry","Bamboo",
-"Mossy","Cobblestone","Stone","Granite","Diorite","Andesite",
-"Blackstone","Deepslate","Sandstone","Red Sandstone","Prismarine","End Stone"
+"Stone","Cobblestone","Mossy","Blackstone","Deepslate","Sandstone","Red Sandstone",
+"Granite","Diorite","Andesite","Prismarine","End Stone"
 ]
 
 /* FILE IMPORT */
@@ -85,11 +73,9 @@ reader.onload=function(e){document.getElementById("input").value=e.target.result
 reader.readAsText(file)
 })
 
-/* GROUP DETECTION */
+/* DETECT GROUP */
 function detectGroup(name){
 let lower=name.toLowerCase()
-
-if(lower.includes("mossy")) return "Mossy"
 
 for(let g of materialGroups){
 if(lower.includes(g.toLowerCase())) return g
@@ -98,7 +84,7 @@ if(lower.includes(g.toLowerCase())) return g
 return "Miscellaneous"
 }
 
-/* PARSE LITEMATICA TEXT */
+/* PARSE LITEMATICA LIST */
 function parseInput(){
 let text=document.getElementById("input").value
 let lines=text.split("\n")
@@ -107,12 +93,7 @@ materials=[]
 lines.forEach(line=>{
 line=line.trim()
 
-if(
-line.startsWith("+") ||
-line.startsWith("| Item") ||
-line.includes("Material List") ||
-line.includes("Missing")
-) return
+if(line.startsWith("+")||line.startsWith("| Item")||line.includes("Material List")||line.includes("Missing")) return
 
 let match=line.match(/\|\s(.+?)\s+\|\s+(\d+)/)
 
@@ -143,33 +124,36 @@ groups[g].push(m)
 return groups
 }
 
-/* SORT SYSTEM */
+/* SORT */
 function sortItems(arr){
 let mode=document.getElementById("sortSelect").value
-
 if(mode=="az") arr.sort((a,b)=>a.name.localeCompare(b.name))
 if(mode=="za") arr.sort((a,b)=>b.name.localeCompare(a.name))
 if(mode=="low") arr.sort((a,b)=>a.qty-b.qty)
 if(mode=="high") arr.sort((a,b)=>b.qty-a.qty)
 }
 
-/* GENERATE TABLE */
+/* GENERATE */
 function generate(){
 parseInput()
 let groups=groupItems()
 render(groups)
 }
 
-/* RENDER */
+/* RENDER TABLE */
 function render(groups){
-
 let tbody=document.querySelector("#table tbody")
 tbody.innerHTML=""
-
 let rawEnabled=document.getElementById("rawToggle").checked
 
-for(let g in groups){
+/* ORDER GROUPS WITH MISC LAST */
+let keys=Object.keys(groups).sort()
+if(keys.includes("Miscellaneous")){
+keys=keys.filter(k=>k!=="Miscellaneous")
+keys.push("Miscellaneous")
+}
 
+keys.forEach(g=>{
 let arr=groups[g]
 
 sortItems(arr)
@@ -177,7 +161,6 @@ sortItems(arr)
 let rawTotal=0
 
 if(rawEnabled){
-
 arr.forEach(m=>{
 let name=m.name.toLowerCase()
 let qty=m.qty
@@ -186,16 +169,12 @@ if(name.includes("slab")){
 let planks=(qty/6)*3
 rawTotal+=planks/4
 }
-
 else if(name.includes("stairs")){
 let planks=(qty/4)*6
 rawTotal+=planks/4
 }
-
 else if(name.includes("planks")) rawTotal+=qty/4
-
 else if(name.includes("log")) rawTotal+=qty
-
 })
 }
 
@@ -209,7 +188,6 @@ tbody.innerHTML+=`
 
 /* ITEMS */
 arr.forEach(m=>{
-
 tbody.innerHTML+=`
 <tr data-group="${g}">
 <td><input type="checkbox" onclick="updateProgress()"></td>
@@ -217,13 +195,10 @@ tbody.innerHTML+=`
 <td>${m.qty}</td>
 <td>${m.stacks}</td>
 <td>${m.chest}</td>
-</tr>
-`
-
+</tr>`
 })
 
-}
-
+})
 }
 
 /* GROUP CHECK */
@@ -233,7 +208,7 @@ rows.forEach(r=>{r.checked=!r.checked})
 updateProgress()
 }
 
-/* PROGRESS BAR */
+/* PROGRESS */
 function updateProgress(){
 let checks=document.querySelectorAll("tbody input[type='checkbox']")
 let total=checks.length
@@ -253,8 +228,7 @@ let table=document.getElementById("table")
 let wb=XLSX.utils.table_to_book(table,{sheet:"Materials"})
 XLSX.writeFile(wb,"LitematicaMaterials.xlsx")
 }
-
 </script><footer>
-Created by <a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">Game_Kheling</a>
+Social media: <a href="https://www.instagram.com/game_kheling?igsh=MXVqcDB2cTVqdmsyZQ==" target="_blank">Instagram @game_kheling</a>
 </footer></body>
 </html>
