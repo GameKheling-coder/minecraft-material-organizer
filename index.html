@@ -29,149 +29,31 @@ body{
     padding:20px;
 }
 
-/* ===== TOP BAR ===== */
+/* ===== 3D TITLE ===== */
 
-#topBar{
-    display:flex;
-    justify-content:flex-start;
-    align-items:center;
-    margin-bottom:10px;
-}
-
-#dateTime{
-    background:#111827;
-    border:1px solid rgba(255,255,255,0.08);
-    padding:10px 14px;
-    border-radius:12px;
-    font-size:14px;
-    font-weight:700;
-    color:#93c5fd;
-    box-shadow:0 0 12px rgba(56,189,248,0.15);
-}
-
-/* ===== LEGENDARY TITLE ===== */
-
-.shineTitle{
-
-    position:relative;
-
+h1{
     text-align:center;
-
-    font-size:74px;
+    font-size:58px;
     font-weight:900;
-
-    line-height:1;
-
-    margin-bottom:10px;
-
-    display:flex;
-    justify-content:center;
-
-    overflow:hidden;
-
-    /* MAIN TEXT GRADIENT */
-
-    background:linear-gradient(
-        180deg,
-        #fff8b5 0%,
-        #ffd93d 20%,
-        #ffbf00 40%,
-        #d48cff 72%,
-        #8b5cf6 100%
-    );
-
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-
-    /* 3D DEPTH */
+    letter-spacing:2px;
+    color:#38bdf8;
 
     text-shadow:
-    0px 2px 0px #5b3a00,
-    0px 4px 0px #452700,
-    0px 6px 0px #311900,
-    0px 10px 20px rgba(0,0,0,0.7);
+    0 1px 0 #000,
+    0 2px 0 #000,
+    0 3px 0 #000,
+    0 4px 0 #000,
+    0 5px 0 #000,
+    0 6px 10px rgba(0,0,0,0.7);
 
-    /* OUTLINE */
-
-    -webkit-text-stroke:4px #1d1200;
-
-    transform:perspective(700px) rotateX(8deg);
+    transform:perspective(500px) rotateX(8deg);
 }
-
-.shineTitle span{
-
-    position:relative;
-
-    display:inline-block;
-
-    white-space:nowrap;
-}
-
-/* ===== SHINE ONLY ON OUTLINE ===== */
-
-.shineTitle span::after{
-
-    content:"";
-
-    position:absolute;
-
-    top:-25%;
-    left:-40%;
-
-    width:15%;
-    height:160%;
-
-    background:linear-gradient(
-        120deg,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.08) 30%,
-        rgba(255,255,255,1) 50%,
-        rgba(255,255,255,0.08) 70%,
-        rgba(255,255,255,0) 100%
-    );
-
-    transform:skewX(-22deg);
-
-    animation:outlineShine 3.5s linear infinite;
-
-    pointer-events:none;
-
-    mix-blend-mode:screen;
-
-    filter:blur(1px);
-}
-
-/* SHINE MOTION */
-
-@keyframes outlineShine{
-
-    0%{
-        left:-40%;
-    }
-
-    100%{
-        left:135%;
-    }
-}
-
-/* ===== SUBTITLE ===== */
 
 .subtitle{
     text-align:center;
     margin-top:5px;
-    margin-bottom:22px;
-
-    font-size:18px;
-
-    font-weight:800;
-
-    color:#dbeafe;
-
-    text-shadow:
-    0 0 10px rgba(255,255,255,0.15),
-    0 0 18px rgba(147,197,253,0.2);
-
-    letter-spacing:0.4px;
+    opacity:.8;
+    margin-bottom:20px;
 }
 
 textarea{
@@ -337,22 +219,10 @@ footer a{
     font-weight:700;
 }
 
-/* ===== MOBILE ===== */
-
 @media(max-width:768px){
 
-    .shineTitle{
-        font-size:42px;
-        -webkit-text-stroke:2px #1d1200;
-    }
-
-    .subtitle{
-        font-size:15px;
-    }
-
-    #dateTime{
-        font-size:12px;
-        padding:8px 10px;
+    h1{
+        font-size:38px;
     }
 
     table{
@@ -369,23 +239,11 @@ footer a{
 
 <body>
 
-<div id="topBar">
-    <div id="dateTime">
-        00:00 IST | 00/00/0000
-    </div>
-</div>
-
-<!-- ===== TITLE ===== -->
-
-<h1 class="shineTitle">
-    <span>Litematica Sort Kering</span>
-</h1>
+<h1>Litematica Sort Kering</h1>
 
 <div class="subtitle">
-<b>by Game_Kheling</b> | v4.2 Mythic Edition
+by Game_Kheling | v3.1 SEO Enhanced
 </div>
-
-<!-- ===== INPUT ===== -->
 
 <textarea id="input" placeholder="
 Supported Formats:
@@ -454,7 +312,7 @@ oninput="generate()"
 
 </div>
 
-<!-- ===== SEO ===== -->
+<!-- SEO SECTION -->
 
 <div id="seoBox">
 
@@ -468,11 +326,15 @@ oninput="generate()"
 <h2>Free Minecraft Litematica Material List Sorter</h2>
 
 <p>
-Litematica Sort Kering is a free Minecraft utility tool that helps players organize and calculate material lists from Litematica schematics and custom block lists.
+Litematica Sort Kering is a free Minecraft utility tool that helps players organize and calculate material lists from Litematica schematics and custom block lists. Easily sort blocks alphabetically, calculate stacks, shulker boxes, double chests, and estimate raw logs needed for massive Minecraft survival projects and mega builds.
 </p>
 
 <p>
-Sort materials, calculate stacks, estimate shulker boxes, double chests, and raw logs for Minecraft mega builds and survival projects.
+This Minecraft schematic helper supports normal text lists and official Litematica exports, making it useful for builders, technical Minecraft players, redstone creators, SMP players, and large survival servers.
+</p>
+
+<p>
+Features include:
 </p>
 
 <ul style="margin-left:20px; margin-top:10px;">
@@ -505,43 +367,372 @@ Instagram:
 
 <script>
 
-/* ===== LIVE IST TIME ===== */
+let materials=[]
 
-function updateDateTime(){
+const materialGroups=[
+"Dark Oak",
+"Oak",
+"Spruce",
+"Birch",
+"Jungle",
+"Acacia",
+"Mangrove",
+"Cherry",
+"Bamboo",
+"Cobblestone",
+"Blackstone",
+"Sandstone",
+"Deepslate",
+"End Stone",
+"Stone"
+]
 
-    const now=new Date()
+document.getElementById("fileInput").addEventListener("change",function(){
 
-    const options={
-        timeZone:"Asia/Kolkata",
-        hour12:false
+    let file=this.files[0]
+
+    if(!file) return
+
+    let reader=new FileReader()
+
+    reader.onload=function(e){
+        document.getElementById("input").value=e.target.result
     }
 
-    let time=now.toLocaleTimeString(
-        "en-GB",
-        {
-            ...options,
-            hour:"2-digit",
-            minute:"2-digit"
-        }
-    )
+    reader.readAsText(file)
+})
 
-    let date=now.toLocaleDateString(
-        "en-GB",
-        {
-            ...options,
-            day:"2-digit",
-            month:"2-digit",
-            year:"numeric"
-        }
-    )
+function detectGroup(name){
 
-    document.getElementById("dateTime")
-    .innerText=`${time} IST | ${date}`
+    let lower=name.toLowerCase()
+
+    for(let g of materialGroups){
+
+        if(lower.includes(g.toLowerCase())){
+            return g
+        }
+    }
+
+    return "Miscellaneous"
 }
 
-updateDateTime()
+function parseInput(){
 
-setInterval(updateDateTime,1000)
+    let text=document.getElementById("input").value
+
+    let lines=text.split("\n")
+
+    materials=[]
+
+    lines.forEach(line=>{
+
+        line=line.trim()
+
+        if(!line) return
+
+        if(
+            line.startsWith("+") ||
+            line.startsWith("| Item") ||
+            line.includes("Material List")
+        ) return
+
+        let name=""
+        let qty=0
+
+        let match1=line.match(/\|\s*(.*?)\s*\|\s*([\d,]+)/)
+
+        let match2=line.match(/(.+?)\s*x\s*([\d,]+)/i)
+
+        let match3=line.match(/(.+?)\s*:\s*([\d,]+)/)
+
+        let match4=line.match(/(.+?)\s+([\d,]+)$/)
+
+        if(match1){
+            name=match1[1].trim()
+            qty=parseInt(match1[2].replace(/,/g,""))
+        }
+
+        else if(match2){
+            name=match2[1].trim()
+            qty=parseInt(match2[2].replace(/,/g,""))
+        }
+
+        else if(match3){
+            name=match3[1].trim()
+            qty=parseInt(match3[2].replace(/,/g,""))
+        }
+
+        else if(match4){
+            name=match4[1].trim()
+            qty=parseInt(match4[2].replace(/,/g,""))
+        }
+
+        if(name && qty){
+
+            let st=Math.floor(qty/64)
+            let rem=qty%64
+
+            materials.push({
+                name,
+                qty,
+                stackDisplay:st>0 ? `${st}st + ${rem}` : `${rem}`,
+                shulkers:(qty/1728).toFixed(1),
+                chest:(qty/3456).toFixed(1)
+            })
+        }
+    })
+}
+
+function calculateRawLogs(arr,group){
+
+    let totalPlanks=0
+
+    let isBamboo=(group==="Bamboo")
+
+    arr.forEach(m=>{
+
+        let name=m.name.toLowerCase()
+
+        let qty=m.qty
+
+        if(name.includes("slab")) totalPlanks+=(qty*0.5)
+
+        else if(name.includes("stairs")) totalPlanks+=(qty*1.5)
+
+        else if(name.includes("trapdoor")) totalPlanks+=(qty*3)
+
+        else if(name.includes("fence gate")) totalPlanks+=(qty*4)
+
+        else if(name.includes("fence")) totalPlanks+=(qty*1.33)
+
+        else if(name.includes("door")) totalPlanks+=(qty*2)
+
+        else if(name.includes("sign")) totalPlanks+=(qty*2)
+
+        else if(name.includes("pressure plate")) totalPlanks+=(qty*2)
+
+        else if(name.includes("button")) totalPlanks+=(qty*1)
+
+        else if(name.includes("planks")) totalPlanks+=qty
+    })
+
+    let divisor=isBamboo ? 2 : 4
+
+    let rawLogs=Math.ceil(totalPlanks/divisor)
+
+    arr.forEach(m=>{
+
+        let name=m.name.toLowerCase()
+
+        if(
+            /\blog\b/.test(name) ||
+            /\bstem\b/.test(name) ||
+            /\bhyphae\b/.test(name) ||
+            /\bblock of bamboo\b/.test(name)
+        ){
+            rawLogs+=m.qty
+        }
+    })
+
+    return rawLogs
+}
+
+function render(groups){
+
+    let tbody=document.querySelector("#table tbody")
+
+    let html=""
+
+    let rawEnabled=document.getElementById("rawToggle").checked
+
+    let search=document.getElementById("searchInput").value.toLowerCase()
+
+    let keys=Object.keys(groups).sort()
+
+    if(keys.includes("Miscellaneous")){
+
+        keys=keys.filter(k=>k!=="Miscellaneous")
+
+        keys.push("Miscellaneous")
+    }
+
+    keys.forEach(g=>{
+
+        let arr=groups[g]
+
+        arr=arr.filter(m=>
+            m.name.toLowerCase().includes(search)
+        )
+
+        if(arr.length===0) return
+
+        let mode=document.getElementById("sortSelect").value
+
+        if(mode==="az"){
+            arr.sort((a,b)=>a.name.localeCompare(b.name))
+        }
+
+        if(mode==="za"){
+            arr.sort((a,b)=>b.name.localeCompare(a.name))
+        }
+
+        if(mode==="high"){
+            arr.sort((a,b)=>b.qty-a.qty)
+        }
+
+        if(mode==="low"){
+            arr.sort((a,b)=>a.qty-b.qty)
+        }
+
+        let rawLogs=calculateRawLogs(arr,g)
+
+        html+=`
+        <tr class="group">
+
+            <td>
+                <input type="checkbox" onclick="toggleGroup('${g}')">
+            </td>
+
+            <td colspan="5">
+
+                ${g}
+
+                ${
+                    rawEnabled && rawLogs>0
+
+                    ?
+
+                    `<span>
+                    (Req: ≈${rawLogs}
+                    ${g==="Bamboo" ? "Bamboo Blocks" : "Logs"})
+                    </span>`
+
+                    :
+
+                    ""
+                }
+
+            </td>
+
+        </tr>
+        `
+
+        arr.forEach(m=>{
+
+            html+=`
+            <tr data-group="${g}">
+
+                <td>
+                    <input type="checkbox" onclick="updateProgress()">
+                </td>
+
+                <td>${m.name}</td>
+
+                <td><b>${m.qty}</b></td>
+
+                <td>${m.stackDisplay}</td>
+
+                <td>${m.shulkers}</td>
+
+                <td>${m.chest}</td>
+
+            </tr>
+            `
+        })
+    })
+
+    tbody.innerHTML=html
+
+    updateProgress()
+}
+
+function generate(){
+
+    parseInput()
+
+    let groups={}
+
+    materials.forEach(m=>{
+
+        let g=detectGroup(m.name)
+
+        if(!groups[g]){
+            groups[g]=[]
+        }
+
+        groups[g].push(m)
+    })
+
+    render(groups)
+}
+
+function toggleGroup(g){
+
+    const rows=document.querySelectorAll(
+        `[data-group="${g}"] input`
+    )
+
+    const allChecked=Array.from(rows)
+    .every(r=>r.checked)
+
+    rows.forEach(r=>{
+        r.checked=!allChecked
+    })
+
+    updateProgress()
+}
+
+function updateProgress(){
+
+    let checks=document.querySelectorAll(
+        'tbody tr[data-group] input[type="checkbox"]'
+    )
+
+    let done=Array.from(checks)
+    .filter(c=>c.checked).length
+
+    let percent=checks.length>0
+    ?
+    Math.floor((done/checks.length)*100)
+    :
+    0
+
+    document.getElementById("progressBar")
+    .style.width=percent+"%"
+
+    document.getElementById("progressText")
+    .innerText="Progress: "+percent+"%"
+}
+
+function exportExcel(){
+
+    let table=document.getElementById("table")
+
+    let wb=XLSX.utils.table_to_book(table)
+
+    XLSX.writeFile(
+        wb,
+        "Litematica_Material_List.xlsx"
+    )
+}
+
+/* SEO TOGGLE */
+
+function toggleSEO(){
+
+    const content=document.getElementById("seoContent")
+
+    const arrow=document.getElementById("seoArrow")
+
+    content.classList.toggle("show")
+
+    arrow.innerText=
+    content.classList.contains("show")
+    ?
+    "−"
+    :
+    "+"
+}
 
 </script>
 
