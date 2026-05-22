@@ -1,52 +1,300 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Litematica Sort Kering Pro</title>
+
+<meta name="description" content="Free Minecraft Litematica Material List Sorter and Calculator. Organize blocks, calculate stacks, shulkers, double chests, raw logs, and export materials easily for Minecraft mega builds.">
+
+<meta name="keywords" content="Litematica sorter, Minecraft material calculator, Minecraft block sorter, Litematica material list, Minecraft schematic helper, Minecraft raw log calculator">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
-body{font-family:Poppins;background:#0f172a;color:#e2e8f0;padding:20px}
-h1{ text-align:center; font-size:50px; font-weight:900; letter-spacing:2px; color:#38bdf8; text-shadow:-3px -3px 0 #000,3px -3px 0 #000,-3px 3px 0 #000,3px 3px 0 #000; }
-.subtitle{text-align:center;margin-top:-10px;opacity:.85}
-textarea{width:100%;height:140px;border:none;border-radius:10px;background:#1e293b;color:white;padding:10px;box-sizing:border-box}
-.controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button{background:#22c55e;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;color:white}
-select{padding:8px;border-radius:6px;border:none;background:#334155;color:white}
-table{width:100%;margin-top:20px;border-collapse:collapse;min-width:600px}
-th{background:#334155;padding:12px;text-align:left}
-td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.05)}
-.group{background:#1e3a5f;font-weight:700} .group span{color:#4ade80;font-size:0.9em;margin-left:10px}
-#progressContainer{width:100%;height:18px;background:#1e293b;border-radius:10px;margin-top:15px;overflow:hidden} 
-#progressBar{width:0%;height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);transition:.3s} 
-#progressText{margin-top:5px;font-size:13px;opacity:.8}
-footer{margin-top:40px;text-align:center;font-size:14px;opacity:.85} 
-footer a{color:#38bdf8;text-decoration:none;font-weight:700}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Poppins;
+    background:#0f172a;
+    color:#e2e8f0;
+    padding:20px;
+}
+
+/* ===== 3D TITLE ===== */
+
+h1{
+    text-align:center;
+    font-size:58px;
+    font-weight:900;
+    letter-spacing:2px;
+    color:#38bdf8;
+
+    text-shadow:
+    0 1px 0 #000,
+    0 2px 0 #000,
+    0 3px 0 #000,
+    0 4px 0 #000,
+    0 5px 0 #000,
+    0 6px 10px rgba(0,0,0,0.7);
+
+    transform:perspective(500px) rotateX(8deg);
+}
+
+.subtitle{
+    text-align:center;
+    margin-top:5px;
+    opacity:.8;
+    margin-bottom:20px;
+}
+
+textarea{
+    width:100%;
+    height:180px;
+    border:none;
+    border-radius:12px;
+    background:#1e293b;
+    color:white;
+    padding:14px;
+    font-size:14px;
+    resize:vertical;
+    outline:none;
+}
+
+.controls{
+    margin-top:14px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+}
+
+button{
+    background:#22c55e;
+    border:none;
+    padding:10px 16px;
+    border-radius:10px;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.1);
+}
+
+select,input[type="text"]{
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:white;
+}
+
+.searchBox{
+    flex:1;
+    min-width:220px;
+}
+
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+    min-width:700px;
+}
+
+thead{
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+th{
+    background:#334155;
+    padding:12px;
+    text-align:left;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+}
+
+.group{
+    background:#1e3a5f;
+    font-weight:700;
+}
+
+.group span{
+    color:#4ade80;
+    font-size:0.9em;
+    margin-left:10px;
+}
+
+#progressContainer{
+    width:100%;
+    height:18px;
+    background:#1e293b;
+    border-radius:999px;
+    margin-top:16px;
+    overflow:hidden;
+}
+
+#progressBar{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#22c55e,#4ade80);
+    transition:.3s;
+}
+
+#progressText{
+    margin-top:6px;
+    font-size:13px;
+    opacity:.85;
+}
+
+/* ===== SEO BOX ===== */
+
+#seoBox{
+    margin-top:50px;
+    background:#111827;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px;
+    overflow:hidden;
+}
+
+#seoHeader{
+    padding:14px 18px;
+    cursor:pointer;
+    font-weight:700;
+    background:#1e293b;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+#seoContent{
+    padding:18px;
+    line-height:1.8;
+    font-size:14px;
+    opacity:.92;
+    display:none;
+}
+
+#seoContent.show{
+    display:block;
+}
+
+#seoContent h2{
+    margin-bottom:10px;
+    color:#38bdf8;
+}
+
+#seoContent a{
+    color:#4ade80;
+    text-decoration:none;
+    font-weight:700;
+}
+
+footer{
+    margin-top:35px;
+    text-align:center;
+    opacity:.75;
+    font-size:14px;
+}
+
+footer a{
+    color:#38bdf8;
+    text-decoration:none;
+    font-weight:700;
+}
+
+@media(max-width:768px){
+
+    h1{
+        font-size:38px;
+    }
+
+    table{
+        font-size:13px;
+    }
+
+    th,td{
+        padding:8px;
+    }
+}
+
 </style>
 </head>
+
 <body>
 
 <h1>Litematica Sort Kering</h1>
-<div class="subtitle">by Game_Kheling | v2.0 Recipe Corrected</div>
 
-<textarea id="input" placeholder="Paste Litematica material list here..."></textarea>
+<div class="subtitle">
+by Game_Kheling | v3.1 SEO Enhanced
+</div>
+
+<textarea id="input" placeholder="
+Supported Formats:
+
+| Oak Planks | 256
+Oak Planks 256
+Oak Planks x256
+Oak Planks: 256
+"></textarea>
 
 <div class="controls">
+
 <input type="file" id="fileInput" accept=".txt">
+
 <button onclick="generate()">Generate</button>
+
 <button onclick="exportExcel()">Export Excel</button>
+
 <select id="sortSelect" onchange="generate()">
 <option value="none">Sort By</option>
 <option value="az">A → Z</option>
 <option value="za">Z → A</option>
-<option value="high">Qty: High to Low</option>
+<option value="high">Qty High → Low</option>
+<option value="low">Qty Low → High</option>
 </select>
-<label><input type="checkbox" id="rawToggle" checked onchange="generate()"> RAW Wood Mode</label>
+
+<label>
+<input type="checkbox" id="rawToggle" checked onchange="generate()">
+RAW Wood Mode
+</label>
+
+<input
+type="text"
+id="searchInput"
+class="searchBox"
+placeholder="Search block..."
+oninput="generate()"
+>
+
 </div>
 
-<div id="progressContainer"><div id="progressBar"></div></div>
+<div id="progressContainer">
+<div id="progressBar"></div>
+</div>
+
 <div id="progressText">Progress: 0%</div>
 
+<div style="overflow-x:auto;">
+
 <table id="table">
+
 <thead>
 <tr>
 <th>✔</th>
@@ -57,139 +305,436 @@ footer a{color:#38bdf8;text-decoration:none;font-weight:700}
 <th>D. Chest</th>
 </tr>
 </thead>
+
 <tbody></tbody>
+
 </table>
 
+</div>
+
+<!-- SEO SECTION -->
+
+<div id="seoBox">
+
+<div id="seoHeader" onclick="toggleSEO()">
+<span>Minecraft Litematica Tool Info</span>
+<span id="seoArrow">+</span>
+</div>
+
+<div id="seoContent">
+
+<h2>Free Minecraft Litematica Material List Sorter</h2>
+
+<p>
+Litematica Sort Kering is a free Minecraft utility tool that helps players organize and calculate material lists from Litematica schematics and custom block lists. Easily sort blocks alphabetically, calculate stacks, shulker boxes, double chests, and estimate raw logs needed for massive Minecraft survival projects and mega builds.
+</p>
+
+<p>
+This Minecraft schematic helper supports normal text lists and official Litematica exports, making it useful for builders, technical Minecraft players, redstone creators, SMP players, and large survival servers.
+</p>
+
+<p>
+Features include:
+</p>
+
+<ul style="margin-left:20px; margin-top:10px;">
+<li>✔ Litematica material sorting</li>
+<li>✔ Stack & shulker calculations</li>
+<li>✔ Raw log conversion system</li>
+<li>✔ Search & filtering</li>
+<li>✔ Excel export support</li>
+<li>✔ Universal list parser</li>
+<li>✔ Mobile friendly interface</li>
+</ul>
+
+<p style="margin-top:16px;">
+Created by
+<a href="https://www.instagram.com/game_kheling" target="_blank">
+@game_kheling
+</a>
+</p>
+
+</div>
+
+</div>
+
+<footer>
+Instagram:
+<a href="https://www.instagram.com/game_kheling" target="_blank">
+@game_kheling
+</a>
+</footer>
+
 <script>
+
 let materials=[]
-/* Order is crucial to avoid mixing 'Oak' with 'Dark Oak' */
-const materialGroups=["Dark Oak","Oak","Spruce","Birch","Jungle","Acacia","Mangrove","Cherry","Bamboo","Cobblestone","Blackstone","Sandstone","Deepslate","End Stone","Stone"]
+
+const materialGroups=[
+"Dark Oak",
+"Oak",
+"Spruce",
+"Birch",
+"Jungle",
+"Acacia",
+"Mangrove",
+"Cherry",
+"Bamboo",
+"Cobblestone",
+"Blackstone",
+"Sandstone",
+"Deepslate",
+"End Stone",
+"Stone"
+]
 
 document.getElementById("fileInput").addEventListener("change",function(){
-    let file=this.files[0];
-    let reader=new FileReader();
-    reader.onload=function(e){document.getElementById("input").value=e.target.result};
-    reader.readAsText(file);
-});
+
+    let file=this.files[0]
+
+    if(!file) return
+
+    let reader=new FileReader()
+
+    reader.onload=function(e){
+        document.getElementById("input").value=e.target.result
+    }
+
+    reader.readAsText(file)
+})
 
 function detectGroup(name){
-    let lower=name.toLowerCase();
-    for(let g of materialGroups){ if(lower.includes(g.toLowerCase())) return g; }
-    return "Miscellaneous";
+
+    let lower=name.toLowerCase()
+
+    for(let g of materialGroups){
+
+        if(lower.includes(g.toLowerCase())){
+            return g
+        }
+    }
+
+    return "Miscellaneous"
 }
 
 function parseInput(){
-    let text=document.getElementById("input").value;
-    let lines=text.split("\n");
-    materials=[];
+
+    let text=document.getElementById("input").value
+
+    let lines=text.split("\n")
+
+    materials=[]
 
     lines.forEach(line=>{
-        line=line.trim();
-        if(line.startsWith("+")||line.startsWith("| Item")||line.includes("Material List")) return;
 
-        let match=line.match(/\|\s*(.*?)\s*\|\s*(\d+)/);
-        if(match){
-            let name=match[1].trim();
-            let qty=parseInt(match[2]);
-            let st = Math.floor(qty/64);
-            let rem = qty % 64;
+        line=line.trim()
+
+        if(!line) return
+
+        if(
+            line.startsWith("+") ||
+            line.startsWith("| Item") ||
+            line.includes("Material List")
+        ) return
+
+        let name=""
+        let qty=0
+
+        let match1=line.match(/\|\s*(.*?)\s*\|\s*([\d,]+)/)
+
+        let match2=line.match(/(.+?)\s*x\s*([\d,]+)/i)
+
+        let match3=line.match(/(.+?)\s*:\s*([\d,]+)/)
+
+        let match4=line.match(/(.+?)\s+([\d,]+)$/)
+
+        if(match1){
+            name=match1[1].trim()
+            qty=parseInt(match1[2].replace(/,/g,""))
+        }
+
+        else if(match2){
+            name=match2[1].trim()
+            qty=parseInt(match2[2].replace(/,/g,""))
+        }
+
+        else if(match3){
+            name=match3[1].trim()
+            qty=parseInt(match3[2].replace(/,/g,""))
+        }
+
+        else if(match4){
+            name=match4[1].trim()
+            qty=parseInt(match4[2].replace(/,/g,""))
+        }
+
+        if(name && qty){
+
+            let st=Math.floor(qty/64)
+            let rem=qty%64
 
             materials.push({
-                name:name,
-                qty:qty,
-                stackDisplay: st > 0 ? `${st}st + ${rem}` : `${rem}`,
-                shulkers: (qty/1728).toFixed(1),
-                chest: (qty/3456).toFixed(1)
-            });
+                name,
+                qty,
+                stackDisplay:st>0 ? `${st}st + ${rem}` : `${rem}`,
+                shulkers:(qty/1728).toFixed(1),
+                chest:(qty/3456).toFixed(1)
+            })
         }
-    });
+    })
+}
+
+function calculateRawLogs(arr,group){
+
+    let totalPlanks=0
+
+    let isBamboo=(group==="Bamboo")
+
+    arr.forEach(m=>{
+
+        let name=m.name.toLowerCase()
+
+        let qty=m.qty
+
+        if(name.includes("slab")) totalPlanks+=(qty*0.5)
+
+        else if(name.includes("stairs")) totalPlanks+=(qty*1.5)
+
+        else if(name.includes("trapdoor")) totalPlanks+=(qty*3)
+
+        else if(name.includes("fence gate")) totalPlanks+=(qty*4)
+
+        else if(name.includes("fence")) totalPlanks+=(qty*1.33)
+
+        else if(name.includes("door")) totalPlanks+=(qty*2)
+
+        else if(name.includes("sign")) totalPlanks+=(qty*2)
+
+        else if(name.includes("pressure plate")) totalPlanks+=(qty*2)
+
+        else if(name.includes("button")) totalPlanks+=(qty*1)
+
+        else if(name.includes("planks")) totalPlanks+=qty
+    })
+
+    let divisor=isBamboo ? 2 : 4
+
+    let rawLogs=Math.ceil(totalPlanks/divisor)
+
+    arr.forEach(m=>{
+
+        let name=m.name.toLowerCase()
+
+        if(
+            /\blog\b/.test(name) ||
+            /\bstem\b/.test(name) ||
+            /\bhyphae\b/.test(name) ||
+            /\bblock of bamboo\b/.test(name)
+        ){
+            rawLogs+=m.qty
+        }
+    })
+
+    return rawLogs
 }
 
 function render(groups){
-    let tbody=document.querySelector("#table tbody");
-    tbody.innerHTML="";
-    let rawEnabled=document.getElementById("rawToggle").checked;
 
-    let keys=Object.keys(groups).sort();
+    let tbody=document.querySelector("#table tbody")
+
+    let html=""
+
+    let rawEnabled=document.getElementById("rawToggle").checked
+
+    let search=document.getElementById("searchInput").value.toLowerCase()
+
+    let keys=Object.keys(groups).sort()
+
     if(keys.includes("Miscellaneous")){
-        keys=keys.filter(k=>k!=="Miscellaneous");
-        keys.push("Miscellaneous");
+
+        keys=keys.filter(k=>k!=="Miscellaneous")
+
+        keys.push("Miscellaneous")
     }
 
     keys.forEach(g=>{
-        let arr=groups[g];
-        let mode=document.getElementById("sortSelect").value;
-        if(mode=="az") arr.sort((a,b)=>a.name.localeCompare(b.name));
-        if(mode=="za") arr.sort((a,b)=>b.name.localeCompare(a.name));
-        if(mode=="high") arr.sort((a,b)=>b.qty-a.qty);
 
-        let totalPlanksNeeded = 0;
-        let isBamboo = (g === "Bamboo");
+        let arr=groups[g]
 
-        arr.forEach(m=>{
-            let name=m.name.toLowerCase();
-            let qty=m.qty;
+        arr=arr.filter(m=>
+            m.name.toLowerCase().includes(search)
+        )
 
-            if(rawEnabled){
-                // Plank conversion logic based on real MC recipes
-                if(name.includes("slab")) totalPlanksNeeded += (qty * 0.5);
-                else if(name.includes("stairs")) totalPlanksNeeded += (qty * 1.5);
-                else if(name.includes("trapdoor")) totalPlanksNeeded += (qty * 3);
-                else if(name.includes("fence_gate")) totalPlanksNeeded += (qty * 4); // 4 sticks + 2 planks = approx 4 planks
-                else if(name.includes("fence")) totalPlanksNeeded += (qty * 1.33);
-                else if(name.includes("door") || name.includes("sign")) totalPlanksNeeded += (qty * 2);
-                else if(name.includes("pressure_plate")) totalPlanksNeeded += (qty * 2);
-                else if(name.includes("button")) totalPlanksNeeded += (qty * 1);
-                else if(name.includes("planks")) totalPlanksNeeded += qty;
-                else if(name.includes("log") || name.includes("wood") || name.includes("stem") || name.includes("hyphae") || name.includes("block of bamboo")) {
-                    // Logs will be added separately or converted to planks first
-                    // We'll treat logs as already "ready" materials
+        if(arr.length===0) return
+
+        let mode=document.getElementById("sortSelect").value
+
+        if(mode==="az"){
+            arr.sort((a,b)=>a.name.localeCompare(b.name))
+        }
+
+        if(mode==="za"){
+            arr.sort((a,b)=>b.name.localeCompare(a.name))
+        }
+
+        if(mode==="high"){
+            arr.sort((a,b)=>b.qty-a.qty)
+        }
+
+        if(mode==="low"){
+            arr.sort((a,b)=>a.qty-b.qty)
+        }
+
+        let rawLogs=calculateRawLogs(arr,g)
+
+        html+=`
+        <tr class="group">
+
+            <td>
+                <input type="checkbox" onclick="toggleGroup('${g}')">
+            </td>
+
+            <td colspan="5">
+
+                ${g}
+
+                ${
+                    rawEnabled && rawLogs>0
+
+                    ?
+
+                    `<span>
+                    (Req: ≈${rawLogs}
+                    ${g==="Bamboo" ? "Bamboo Blocks" : "Logs"})
+                    </span>`
+
+                    :
+
+                    ""
                 }
-            }
-        });
 
-        // Convert total planks back to RAW logs
-        // Bamboo: 1 Block = 2 Planks | Others: 1 Log = 4 Planks
-        let divisor = isBamboo ? 2 : 4;
-        let rawLogs = Math.ceil(totalPlanksNeeded / divisor);
+            </td>
 
-        // Also add direct logs/blocks that are already in the list
-        arr.forEach(m=>{
-            let name=m.name.toLowerCase();
-            if(name.includes("log") || name.includes("wood") || name.includes("stem") || name.includes("hyphae") || name.includes("block of bamboo")) {
-                rawLogs += m.qty;
-            }
-        });
-
-        tbody.innerHTML+=`<tr class="group">
-            <td><input type="checkbox" onclick="toggleGroup('${g}')"></td>
-            <td colspan="5">${g} ${rawEnabled && rawLogs > 0 ? `<span>(Req: ≈${rawLogs} ${isBamboo ? 'Bamboo Blocks' : 'Logs'})</span>` : ''}</td>
-        </tr>`;
+        </tr>
+        `
 
         arr.forEach(m=>{
-            tbody.innerHTML+=`<tr data-group="${g}">
-                <td><input type="checkbox" onclick="updateProgress()"></td>
+
+            html+=`
+            <tr data-group="${g}">
+
+                <td>
+                    <input type="checkbox" onclick="updateProgress()">
+                </td>
+
                 <td>${m.name}</td>
+
                 <td><b>${m.qty}</b></td>
+
                 <td>${m.stackDisplay}</td>
+
                 <td>${m.shulkers}</td>
+
                 <td>${m.chest}</td>
-            </tr>`;
-        });
-    });
+
+            </tr>
+            `
+        })
+    })
+
+    tbody.innerHTML=html
+
+    updateProgress()
 }
 
-function generate(){ parseInput(); let groups={}; materials.forEach(m=>{ let g=detectGroup(m.name); if(!groups[g]) groups[g]=[]; groups[g].push(m); }); render(groups); }
-function toggleGroup(g){ document.querySelectorAll(`[data-group="${g}"] input`).forEach(r=>{r.checked=!r.checked}); updateProgress(); }
-function updateProgress(){
-    let checks=document.querySelectorAll("tbody input[type='checkbox']");
-    let done=Array.from(checks).filter(c=>c.checked).length;
-    let percent=checks.length > 0 ? Math.floor((done/checks.length)*100) : 0;
-    document.getElementById("progressBar").style.width=percent+"%";
-    document.getElementById("progressText").innerText="Progress: "+percent+"%";
+function generate(){
+
+    parseInput()
+
+    let groups={}
+
+    materials.forEach(m=>{
+
+        let g=detectGroup(m.name)
+
+        if(!groups[g]){
+            groups[g]=[]
+        }
+
+        groups[g].push(m)
+    })
+
+    render(groups)
 }
-function exportExcel(){ let table=document.getElementById("table"); let wb=XLSX.utils.table_to_book(table); XLSX.writeFile(wb,"Litematica_Material_List.xlsx"); }
+
+function toggleGroup(g){
+
+    const rows=document.querySelectorAll(
+        `[data-group="${g}"] input`
+    )
+
+    const allChecked=Array.from(rows)
+    .every(r=>r.checked)
+
+    rows.forEach(r=>{
+        r.checked=!allChecked
+    })
+
+    updateProgress()
+}
+
+function updateProgress(){
+
+    let checks=document.querySelectorAll(
+        'tbody tr[data-group] input[type="checkbox"]'
+    )
+
+    let done=Array.from(checks)
+    .filter(c=>c.checked).length
+
+    let percent=checks.length>0
+    ?
+    Math.floor((done/checks.length)*100)
+    :
+    0
+
+    document.getElementById("progressBar")
+    .style.width=percent+"%"
+
+    document.getElementById("progressText")
+    .innerText="Progress: "+percent+"%"
+}
+
+function exportExcel(){
+
+    let table=document.getElementById("table")
+
+    let wb=XLSX.utils.table_to_book(table)
+
+    XLSX.writeFile(
+        wb,
+        "Litematica_Material_List.xlsx"
+    )
+}
+
+/* SEO TOGGLE */
+
+function toggleSEO(){
+
+    const content=document.getElementById("seoContent")
+
+    const arrow=document.getElementById("seoArrow")
+
+    content.classList.toggle("show")
+
+    arrow.innerText=
+    content.classList.contains("show")
+    ?
+    "−"
+    :
+    "+"
+}
+
 </script>
 
-<footer>Social media: <a href="https://www.instagram.com/game_kheling" target="_blank">Instagram @game_kheling</a></footer>
-</body></html>
+</body>
+</html>
