@@ -29,24 +29,111 @@ body{
     padding:20px;
 }
 
-/* ===== 3D TITLE ===== */
+/* ===== TOP BAR ===== */
 
-h1{
+#topBar{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+#dateTime{
+    background:#111827;
+    border:1px solid rgba(255,255,255,0.08);
+    padding:10px 14px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:700;
+    color:#93c5fd;
+    box-shadow:0 0 12px rgba(56,189,248,0.15);
+}
+
+/* ===== COLORFUL 3D SHINY TITLE ===== */
+
+.shineTitle{
+    position:relative;
     text-align:center;
-    font-size:58px;
+    font-size:64px;
     font-weight:900;
     letter-spacing:2px;
-    color:#38bdf8;
+    margin-bottom:10px;
+
+    background:linear-gradient(
+        90deg,
+        #38bdf8,
+        #4ade80,
+        #facc15,
+        #fb7185,
+        #38bdf8
+    );
+
+    background-size:300% auto;
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    animation:gradientMove 8s linear infinite;
 
     text-shadow:
-    0 1px 0 #000,
-    0 2px 0 #000,
-    0 3px 0 #000,
-    0 4px 0 #000,
-    0 5px 0 #000,
-    0 6px 10px rgba(0,0,0,0.7);
+    0 2px 0 rgba(0,0,0,0.4),
+    0 4px 8px rgba(0,0,0,0.5);
 
     transform:perspective(500px) rotateX(8deg);
+
+    overflow:hidden;
+}
+
+.shineTitle span{
+    position:relative;
+    display:inline-block;
+}
+
+.shineTitle span::after{
+
+    content:"";
+    position:absolute;
+
+    top:0;
+    left:-120%;
+
+    width:80%;
+    height:100%;
+
+    background:linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(255,255,255,0.1) 20%,
+        rgba(255,255,255,0.85) 50%,
+        rgba(255,255,255,0.1) 80%,
+        transparent 100%
+    );
+
+    transform:skewX(-20deg);
+
+    animation:shineMove 3.5s infinite;
+}
+
+@keyframes gradientMove{
+
+    0%{
+        background-position:0% center;
+    }
+
+    100%{
+        background-position:300% center;
+    }
+}
+
+@keyframes shineMove{
+
+    0%{
+        left:-120%;
+    }
+
+    100%{
+        left:130%;
+    }
 }
 
 .subtitle{
@@ -221,8 +308,13 @@ footer a{
 
 @media(max-width:768px){
 
-    h1{
-        font-size:38px;
+    .shineTitle{
+        font-size:40px;
+    }
+
+    #dateTime{
+        font-size:12px;
+        padding:8px 10px;
     }
 
     table{
@@ -239,10 +331,22 @@ footer a{
 
 <body>
 
-<h1>Litematica Sort Kering</h1>
+<!-- ===== TOP DATE TIME ===== -->
+
+<div id="topBar">
+    <div id="dateTime">
+        00:00 IST | 00/00/0000
+    </div>
+</div>
+
+<!-- ===== TITLE ===== -->
+
+<h1 class="shineTitle">
+    <span>Litematica Sort Kering</span>
+</h1>
 
 <div class="subtitle">
-by Game_Kheling | v3.1 SEO Enhanced
+by Game_Kheling | v4.0 Ultimate Edition
 </div>
 
 <textarea id="input" placeholder="
@@ -312,7 +416,7 @@ oninput="generate()"
 
 </div>
 
-<!-- SEO SECTION -->
+<!-- ===== SEO SECTION ===== -->
 
 <div id="seoBox">
 
@@ -326,15 +430,15 @@ oninput="generate()"
 <h2>Free Minecraft Litematica Material List Sorter</h2>
 
 <p>
-Litematica Sort Kering is a free Minecraft utility tool that helps players organize and calculate material lists from Litematica schematics and custom block lists. Easily sort blocks alphabetically, calculate stacks, shulker boxes, double chests, and estimate raw logs needed for massive Minecraft survival projects and mega builds.
+Litematica Sort Kering is a free Minecraft utility tool that helps players organize and calculate material lists from Litematica schematics and custom block lists.
 </p>
 
 <p>
-This Minecraft schematic helper supports normal text lists and official Litematica exports, making it useful for builders, technical Minecraft players, redstone creators, SMP players, and large survival servers.
+Easily sort blocks alphabetically, calculate stacks, shulker boxes, double chests, and estimate raw logs needed for massive Minecraft survival projects and mega builds.
 </p>
 
 <p>
-Features include:
+Useful for builders, SMP players, technical Minecraft players, and large schematic projects.
 </p>
 
 <ul style="margin-left:20px; margin-top:10px;">
@@ -716,7 +820,7 @@ function exportExcel(){
     )
 }
 
-/* SEO TOGGLE */
+/* ===== SEO TOGGLE ===== */
 
 function toggleSEO(){
 
@@ -733,6 +837,44 @@ function toggleSEO(){
     :
     "+"
 }
+
+/* ===== LIVE IST DATE TIME ===== */
+
+function updateDateTime(){
+
+    const now=new Date()
+
+    const options={
+        timeZone:"Asia/Kolkata",
+        hour12:false
+    }
+
+    let time=now.toLocaleTimeString(
+        "en-GB",
+        {
+            ...options,
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    )
+
+    let date=now.toLocaleDateString(
+        "en-GB",
+        {
+            ...options,
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+        }
+    )
+
+    document.getElementById("dateTime")
+    .innerText=`${time} IST | ${date}`
+}
+
+updateDateTime()
+
+setInterval(updateDateTime,1000)
 
 </script>
 
