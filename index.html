@@ -29,14 +29,65 @@ body{
     padding:20px;
 }
 
+/* LIVE DATE TIME */
+
+#dateTimeBox{
+    position:fixed;
+    top:18px;
+    right:20px;
+    z-index:999;
+
+    text-align:right;
+
+    background:rgba(15,23,42,0.75);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(8px);
+
+    padding:10px 14px;
+
+    border-radius:14px;
+
+    box-shadow:
+    0 4px 20px rgba(0,0,0,0.35);
+}
+
+#liveDate{
+    font-size:14px;
+    font-weight:700;
+    color:#f8fafc;
+}
+
+#liveTime{
+    font-size:22px;
+    font-weight:900;
+    color:#38bdf8;
+    margin-top:2px;
+}
+
 /* ===== 3D TITLE ===== */
 
 h1{
+    position:relative;
+    width:fit-content;
+    margin:auto;
+
     text-align:center;
     font-size:58px;
     font-weight:900;
     letter-spacing:2px;
-    color:#38bdf8;
+
+    background:linear-gradient(
+    90deg,
+    #fde047,
+    #facc15,
+    #c084fc,
+    #a855f7
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 
     text-shadow:
     0 1px 0 #000,
@@ -47,6 +98,53 @@ h1{
     0 6px 10px rgba(0,0,0,0.7);
 
     transform:perspective(500px) rotateX(8deg);
+}
+
+/* SHINY BORDER LINE */
+
+h1::after{
+    content:"";
+    position:absolute;
+    inset:-4px;
+
+    border-radius:14px;
+
+    background:linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255,255,255,0.95) 50%,
+    transparent 60%,
+    transparent 100%
+    );
+
+    animation:titleShine 3s linear infinite;
+
+    mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+
+    -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+
+    padding:2px;
+
+    mask-composite:exclude;
+    -webkit-mask-composite:xor;
+
+    pointer-events:none;
+}
+
+@keyframes titleShine{
+
+    0%{
+        transform:translateX(-120%);
+    }
+
+    100%{
+        transform:translateX(120%);
+    }
 }
 
 .subtitle{
@@ -232,12 +330,31 @@ footer a{
     th,td{
         padding:8px;
     }
+
+    #dateTimeBox{
+        top:10px;
+        right:10px;
+        padding:8px 10px;
+    }
+
+    #liveDate{
+        font-size:11px;
+    }
+
+    #liveTime{
+        font-size:16px;
+    }
 }
 
 </style>
 </head>
 
 <body>
+
+<div id="dateTimeBox">
+    <div id="liveDate">00-00-0000</div>
+    <div id="liveTime">00:00</div>
+</div>
 
 <h1>Litematica Sort Kering</h1>
 
@@ -733,6 +850,33 @@ function toggleSEO(){
     :
     "+"
 }
+
+/* LIVE DATE TIME */
+
+function updateDateTime(){
+
+    const now=new Date()
+
+    let day=String(now.getDate()).padStart(2,"0")
+
+    let month=String(now.getMonth()+1).padStart(2,"0")
+
+    let year=now.getFullYear()
+
+    let hours=String(now.getHours()).padStart(2,"0")
+
+    let mins=String(now.getMinutes()).padStart(2,"0")
+
+    document.getElementById("liveDate")
+    .innerText=`${day}-${month}-${year}`
+
+    document.getElementById("liveTime")
+    .innerText=`${hours}:${mins}`
+}
+
+updateDateTime()
+
+setInterval(updateDateTime,1000)
 
 </script>
 
