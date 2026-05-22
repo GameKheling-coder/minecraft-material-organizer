@@ -27,32 +27,6 @@ body{
     background:#0f172a;
     color:#e2e8f0;
     padding:20px;
-    position:relative;
-}
-
-/* ===== DATE TIME ===== */
-
-#dateTime{
-    position:absolute;
-    top:20px;
-    right:20px;
-    text-align:right;
-    line-height:1.3;
-    font-weight:700;
-    color:#facc15;
-    text-shadow:
-    0 0 5px rgba(250,204,21,0.6),
-    0 0 10px rgba(168,85,247,0.5);
-    z-index:100;
-}
-
-#currentDate{
-    font-size:15px;
-}
-
-#currentTime{
-    font-size:18px;
-    color:#c084fc;
 }
 
 /* ===== 3D TITLE ===== */
@@ -258,32 +232,12 @@ footer a{
     th,td{
         padding:8px;
     }
-
-    #dateTime{
-        top:12px;
-        right:12px;
-    }
-
-    #currentDate{
-        font-size:12px;
-    }
-
-    #currentTime{
-        font-size:14px;
-    }
 }
 
 </style>
 </head>
 
 <body>
-
-<!-- DATE TIME -->
-
-<div id="dateTime">
-    <div id="currentDate">00-00-0000</div>
-    <div id="currentTime">00:00</div>
-</div>
 
 <h1>Litematica Sort Kering</h1>
 
@@ -779,30 +733,6 @@ function toggleSEO(){
     :
     "+"
 }
-
-/* REALTIME DATE TIME */
-
-function updateDateTime(){
-
-    const now=new Date()
-
-    let day=String(now.getDate()).padStart(2,'0')
-    let month=String(now.getMonth()+1).padStart(2,'0')
-    let year=now.getFullYear()
-
-    let hours=String(now.getHours()).padStart(2,'0')
-    let minutes=String(now.getMinutes()).padStart(2,'0')
-
-    document.getElementById("currentDate").innerText=
-    `${day}-${month}-${year}`
-
-    document.getElementById("currentTime").innerText=
-    `${hours}:${minutes}`
-}
-
-updateDateTime()
-
-setInterval(updateDateTime,1000)
 
 </script>
 
